@@ -24,7 +24,7 @@ new ConcatPlugin({
 });
 
 ```
-### inject to html
+### inject to html(by hand)
 ```
 doctype html
 ...
@@ -34,3 +34,4 @@ doctype html
 
 ### todo
 * add css support
+* auto inject to html
