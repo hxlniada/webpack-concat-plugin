@@ -24,9 +24,7 @@ class ConcatPlugin {
         if (this.fileMd5) {
             return this.fileMd5;
         }
-        const content = Object.keys(files).reduce(function (fileContent, fileName) {
-            return fileContent + files[fileName];
-        }, '');
+        const content = Object.keys(files).reduce((fileContent, fileName) => (fileContent + files[fileName]), '');
         this.fileMd5 = md5(content);
         return this.fileMd5;
     }
@@ -36,7 +34,7 @@ class ConcatPlugin {
         let content = '';
         const concatPromise = self.settings.filesToConcat.map(fileName =>
             new Promise((resolve, reject) => {
-                fs.readFile(fileName, function (err, data) {
+                fs.readFile(fileName, (err, data) => {
                     if (err) {
                         throw err;
                     }
@@ -98,7 +96,7 @@ class ConcatPlugin {
             });
         });
 
-        compiler.plugin('compilation', function (compilation) {
+        compiler.plugin('compilation', compilation => {
             compilation.plugin('html-webpack-plugin-before-html-generation', (htmlPluginData, callback) => {
                 Promise.all(concatPromise).then(files => {
                     const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2));
