@@ -1,4 +1,6 @@
 # webpack-concat-plugin
+[![npm package](https://img.shields.io/npm/v/webpack-concat-plugin.svg)](https://www.npmjs.org/package/webpack-concat-plugin)
+[![npm downloads](http://img.shields.io/npm/dm/webpack-concat-plugin.svg)](https://www.npmjs.org/package/webpack-concat-plugin)
 > a plugin to help webpack to concat js and inject to html-webpack-plugin
 
 ### install
