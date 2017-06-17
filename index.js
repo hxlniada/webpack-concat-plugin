@@ -14,7 +14,7 @@ class ConcatPlugin {
 
     getFileName(files, filePath = this.settings.fileName) {
         if (this.settings.useHash) {
-            let fileMd5 = this.md5File(files);
+            const fileMd5 = this.md5File(files);
             return filePath.replace(/\.js$/, `.${fileMd5.slice(0, 20)}.js`);
         }
         return filePath;
@@ -24,7 +24,9 @@ class ConcatPlugin {
         if (this.fileMd5) {
             return this.fileMd5;
         }
-        const content = Object.keys(files).reduce((fileContent, fileName) => (fileContent + files[fileName]), '');
+        const content = Object.keys(files)
+            .reduce((fileContent, fileName) => (fileContent + files[fileName]), '');
+
         this.fileMd5 = md5(content);
         return this.fileMd5;
     }
@@ -80,7 +82,7 @@ class ConcatPlugin {
                 else {
                     content = Object.keys(allFiles)
                         .map(fileName => allFiles[fileName])
-                        .reduce((content1, content2) => (content1 + content2), '');
+                        .reduce((content1, content2) => (`${content1}\n${content2}`), '');
                 }
 
                 compilation.assets[self.settings.fileName] = {
