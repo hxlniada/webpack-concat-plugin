@@ -64,11 +64,11 @@ class ConcatPlugin {
                     }
 
                     const result = UglifyJS.minify(allFiles, options);
-                    const mapContent = result.map.toString();
 
                     content = result.code;
 
                     if (self.settings.sourceMap) {
+                        const mapContent = result.map.toString();
                         compilation.assets[`${self.settings.fileName}.map`] = {
                             source() {
                                 return mapContent;
