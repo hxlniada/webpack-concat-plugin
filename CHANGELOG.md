@@ -1,5 +1,8 @@
 ## Change History
 
+### v1.2.0 (2017-07-03)
+* Only re-emit file during watch if a dependency changed; thanks to [subhaze](https://github.com/subhaze)
+
 ### v1.1.2 (2017-06-27)
 * fix #2
 
