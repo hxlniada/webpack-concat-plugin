@@ -10,6 +10,12 @@ const path = require('path');
 class ConcatPlugin {
     constructor(options) {
         this.settings = options;
+
+        // used to determine if we should emit files during compiler emit event
+        this.startTime = Date.now();
+        this.prevTimestamps = {};
+        this.filesToConcatAbsolute = options.filesToConcat
+            .map(f => path.resolve(f));
     }
 
     getFileName(files, filePath = this.settings.fileName) {
@@ -46,9 +52,23 @@ class ConcatPlugin {
                 });
             })
         );
+        const dependenciesChanged = (compilation) => {
+            const fileTimestampsKeys = Object.keys(compilation.fileTimestamps);
+            // Since there are no time stamps, assume this is the first run and emit files
+            if (!fileTimestampsKeys.length) {
+                return true;
+            }
+            const changed = fileTimestampsKeys.filter(watchfile =>
+                (self.prevTimestamps[watchfile] || self.startTime) < (compilation.fileTimestamps[watchfile] || Infinity)
+            ).some(f => self.filesToConcatAbsolute.includes(f));
+            this.prevTimestamps = compilation.fileTimestamps;
+            return changed;
+        };
 
         compiler.plugin('emit', (compilation, callback) => {
 
+            compilation.fileDependencies.push(...self.filesToConcatAbsolute);
+            if (!dependenciesChanged(compilation)) return callback();
             Promise.all(concatPromise).then(files => {
                 const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2));
 
