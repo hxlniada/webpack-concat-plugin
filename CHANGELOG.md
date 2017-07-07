@@ -1,5 +1,8 @@
 ## Change History
 
+### v1.3.0 (2017-07-07)
+* add uglify option
+
 ### v1.2.0 (2017-07-03)
 * Only re-emit file during watch if a dependency changed; thanks to [subhaze](https://github.com/subhaze)
 

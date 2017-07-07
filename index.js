@@ -52,7 +52,7 @@ class ConcatPlugin {
                 });
             })
         );
-        const dependenciesChanged = (compilation) => {
+        const dependenciesChanged = compilation => {
             const fileTimestampsKeys = Object.keys(compilation.fileTimestamps);
             // Since there are no time stamps, assume this is the first run and emit files
             if (!fileTimestampsKeys.length) {
@@ -68,11 +68,13 @@ class ConcatPlugin {
         compiler.plugin('emit', (compilation, callback) => {
 
             compilation.fileDependencies.push(...self.filesToConcatAbsolute);
-            if (!dependenciesChanged(compilation)) return callback();
+            if (!dependenciesChanged(compilation)) {
+                return callback();
+            }
             Promise.all(concatPromise).then(files => {
                 const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2));
 
-                if (process.env.NODE_ENV === 'production') {
+                if (process.env.NODE_ENV === 'production' || self.settings.uglify) {
                     self.settings.fileName = self.getFileName(allFiles);
 
                     let options = {

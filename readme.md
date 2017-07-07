@@ -12,7 +12,6 @@ npm install webpack-concat-plugin --save-dev
 
 ### features
 * concat
-* uglify when process.env.NODE_ENV === 'production'
 * inject to html(with html-webpack-plugin)
 
 ### usage
@@ -20,6 +19,7 @@ npm install webpack-concat-plugin --save-dev
 const ConcatPlugin = require('webpack-concat-plugin');
 
 new ConcatPlugin({
+    uglify: true, // uglify js or set process.env.NODE_ENV = 'production'
     useHash: true, // md5 file
     sourceMap: true, // generate sourceMap
     name: 'flexible', // used in html-webpack-plugin
