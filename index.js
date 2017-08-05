@@ -81,6 +81,10 @@ class ConcatPlugin {
                         fromString: true
                     };
 
+                    if (typeof self.settings.uglify === 'object') {
+                        options = Object.assign({}, self.settings.uglify, options);
+                    }
+
                     if (self.settings.sourceMap) {
                         options.outSourceMap = `${self.settings.fileName.split(path.sep).slice(-1).join(path.sep)}.map`;
                     }
