@@ -19,11 +19,18 @@ class ConcatPlugin {
     }
 
     getFileName(files, filePath = this.settings.fileName) {
-        if (this.settings.useHash) {
+        const fileRegExp = /\[name\]/;
+        const hashRegExp = /\[hash\]/;
+
+        if (this.settings.useHash || hashRegExp.test(filePath)) {
             const fileMd5 = this.md5File(files);
-            return filePath.replace(/\.js$/, `.${fileMd5.slice(0, 20)}.js`);
+
+            if (!hashRegExp.test(filePath)) {
+                filePath = filePath.replace(/\.js$/, '.[hash].js');
+            }
+            filePath = filePath.replace(hashRegExp, fileMd5.slice(0, 20));
         }
-        return filePath;
+        return filePath.replace(fileRegExp, this.settings.name);
     }
 
     md5File(files) {
@@ -73,6 +80,7 @@ class ConcatPlugin {
             }
             Promise.all(concatPromise).then(files => {
                 const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2));
+                self.settings.fileName = self.getFileName(allFiles);
 
                 if (process.env.NODE_ENV === 'production' || self.settings.uglify) {
                     self.settings.fileName = self.getFileName(allFiles);
