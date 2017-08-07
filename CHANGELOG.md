@@ -1,5 +1,9 @@
 ## Change History
 
+### v1.4.0 (2017-08-07)
+* Allow passing on Uglify options (#10); thanks to [filipesilva](https://github.com/filipesilva)
+* Allow templating fileName (#9); thanks to [filipesilva](https://github.com/filipesilva)
+
 ### v1.3.0 (2017-07-07)
 * add uglify option
 

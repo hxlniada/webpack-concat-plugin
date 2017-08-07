@@ -19,11 +19,11 @@ npm install webpack-concat-plugin --save-dev
 const ConcatPlugin = require('webpack-concat-plugin');
 
 new ConcatPlugin({
-    uglify: true, // uglify js or set process.env.NODE_ENV = 'production'
+    uglify: true, // or you can set uglifyjs options
     useHash: true, // md5 file
     sourceMap: true, // generate sourceMap
     name: 'flexible', // used in html-webpack-plugin
-    fileName: 'assets/fm/licai/js/flexible.js',
+    fileName: '[name].[hash].bundle.js', // would output to 'flexible.d41d8cd98f00b204e980.bundle.js'
     filesToConcat: ['./src/lib/flexible.js', './src/lib/makegrid.js']
 });
 
