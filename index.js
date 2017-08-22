@@ -47,7 +47,7 @@ class ConcatPlugin {
     apply(compiler) {
         const self = this;
         let content = '';
-        const concatPromise = self.settings.filesToConcat.map(fileName =>
+        const concatPromise = () => self.settings.filesToConcat.map(fileName =>
             new Promise((resolve, reject) => {
                 fs.readFile(fileName, (err, data) => {
                     if (err) {
@@ -78,7 +78,7 @@ class ConcatPlugin {
             if (!dependenciesChanged(compilation)) {
                 return callback();
             }
-            Promise.all(concatPromise).then(files => {
+            Promise.all(concatPromise()).then(files => {
                 const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2));
                 self.settings.fileName = self.getFileName(allFiles);
 
@@ -134,7 +134,7 @@ class ConcatPlugin {
 
         compiler.plugin('compilation', compilation => {
             compilation.plugin('html-webpack-plugin-before-html-generation', (htmlPluginData, callback) => {
-                Promise.all(concatPromise).then(files => {
+                Promise.all(concatPromise()).then(files => {
                     const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2));
 
                     htmlPluginData.assets.webpackConcat = htmlPluginData.assets.webpackConcat || {};
