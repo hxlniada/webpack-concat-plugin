@@ -56,7 +56,7 @@ class ConcatPlugin {
                     }
                     else {
                         fileName = packageFile + '/' + JSON.parse(fs.readFileSync(path.resolve(packageFile + '/package.json')).toString()).main;
-                        if (!fileName.includes('.js')) fileName += '.js';
+                        if (!fileName.endsWith('.js')) fileName += '.js';
                     }
                 }
                 fs.readFile(fileName, (err, data) => {
