@@ -83,8 +83,6 @@ class ConcatPlugin {
                 self.settings.fileName = self.getFileName(allFiles);
 
                 if (process.env.NODE_ENV === 'production' || self.settings.uglify) {
-                    self.settings.fileName = self.getFileName(allFiles);
-
                     let options = {
                         fromString: true
                     };
