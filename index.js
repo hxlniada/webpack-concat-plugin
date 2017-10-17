@@ -138,7 +138,7 @@ class ConcatPlugin {
                     htmlPluginData.assets.webpackConcat = htmlPluginData.assets.webpackConcat || {};
 
                     const relativePath = path.relative(htmlPluginData.outputName, self.settings.fileName)
-                        .split(path.sep).slice(1).join(path.sep);
+                        .split(path.sep).slice(1).join('/');
 
                     htmlPluginData.assets.webpackConcat[self.settings.name] = self.getFileName(allFiles, relativePath);
 
