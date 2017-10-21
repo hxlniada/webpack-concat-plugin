@@ -1,4 +1,7 @@
 ## Change History
+### v1.4.2 (2017-10-21)
+* fix #19; thanks to [gosp](https://github.com/gosp)
+
 ### v1.4.1 (2017-08-31)
 * Reload file content on each compiler emit; Fixes #7; thanks to [subhaze](https://github.com/subhaze)
 * Fix duplicate hash at generated filename; thanks to [IndraGunawan](https://github.com/IndraGunawan)
