@@ -1,27 +1,45 @@
 {
   "name": "webpack-concat-plugin",
   "version": "1.4.2",
-  "description": "webpack file concat",
+  "author": "huangxueliang",
+  "description": "Webpack file concatenation.",
+  "license": "ISC",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --collectCoverageFrom='src/**/*.js' --coverage"
   },
+  "dependencies": {
+    "md5": "^2.2.1",
+    "uglify-js": "^2.8.29"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-jest": "^21.2.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "html-webpack-plugin": "^2.30.1",
+    "jest": "^21.2.1",
+    "webpack": "^3.8.1"
+  },
+  "engines": {
+    "node": ">= 4.8 < 5.0.0 || >= 5.10"
+  },
+  "peerDependencies": {
+    "webpack": "^3.1.0"
+  },
+  "homepage": "https://github.com/hxlniada/webpack-concat-plugin",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hxlniada/webpack-concat-plugin.git"
   },
-  "keywords": [
-    "webpack",
-    "concat"
-  ],
-  "author": "huangxueliang",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/hxlniada/webpack-concat-plugin/issues"
   },
-  "homepage": "https://github.com/hxlniada/webpack-concat-plugin#readme",
-  "dependencies": {
-    "md5": "^2.2.1",
-    "uglify-js": "^2.8.29"
-  }
+  "keywords": [
+    "webpack",
+    "concat"
+  ]
 }
