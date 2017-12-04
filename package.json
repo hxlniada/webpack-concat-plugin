@@ -22,6 +22,6 @@
   "homepage": "https://github.com/hxlniada/webpack-concat-plugin#readme",
   "dependencies": {
     "md5": "^2.2.1",
-    "uglify-js": "^2.8.29"
+    "uglify-es": "^3.2.1"
   }
 }
