@@ -6,7 +6,7 @@ module.exports = {
         new ConcatPlugin({
             name: 'file',
             fileName: '[name].js',
-            filesToConcat: ['./test/fixtures/a.js', './test/fixtures/b.js']
+            filesToConcat: ['./test/fixtures/a.js', './test/fixtures/b.js', 'is-object']
         })
     ],
 };

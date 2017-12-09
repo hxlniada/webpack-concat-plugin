@@ -15,7 +15,7 @@ class ConcatPlugin {
         this.startTime = Date.now();
         this.prevTimestamps = {};
         this.filesToConcatAbsolute = options.filesToConcat
-            .map(f => path.resolve(f));
+            .map(f => require.resolve(f));
     }
 
     getFileName(files, filePath = this.settings.fileName) {
@@ -48,7 +48,8 @@ class ConcatPlugin {
     apply(compiler) {
         const self = this;
         let content = '';
-        const concatPromise = () => self.settings.filesToConcat.map(fileName =>
+
+        const concatPromise = () => self.filesToConcatAbsolute.map(fileName =>
             new Promise((resolve, reject) => {
                 fs.readFile(fileName, (err, data) => {
                     if (err) {
