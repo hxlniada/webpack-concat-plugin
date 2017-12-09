@@ -3,7 +3,7 @@
  * @author huangxueliang
  */
 const fs = require('fs');
-const UglifyJS = require('uglify-js');
+const UglifyJS = require('uglify-es');
 const md5 = require('md5');
 const path = require('path');
 
@@ -83,19 +83,23 @@ class ConcatPlugin {
                 self.settings.fileName = self.getFileName(allFiles);
 
                 if (process.env.NODE_ENV === 'production' || self.settings.uglify) {
-                    let options = {
-                        fromString: true
-                    };
+                    let options = {};
 
                     if (typeof self.settings.uglify === 'object') {
                         options = Object.assign({}, self.settings.uglify, options);
                     }
 
                     if (self.settings.sourceMap) {
-                        options.outSourceMap = `${self.settings.fileName.split(path.sep).slice(-1).join(path.sep)}.map`;
+                        options.sourceMap = {
+                            filename: `${self.settings.fileName.split(path.sep).slice(-1).join(path.sep)}.map`
+                        }
                     }
 
                     const result = UglifyJS.minify(allFiles, options);
+
+                    if (result.error) {
+                        throw result.error;
+                    }
 
                     content = result.code;
 
