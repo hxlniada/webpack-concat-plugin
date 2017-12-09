@@ -92,7 +92,8 @@ class ConcatPlugin {
 
                     if (self.settings.sourceMap) {
                         options.sourceMap = {
-                            filename: `${self.settings.fileName.split(path.sep).slice(-1).join(path.sep)}.map`
+                            filename: `${self.settings.fileName.split(path.sep).slice(-1).join(path.sep)}.map`,
+                            url: `${self.settings.fileName}.map`
                         };
                     }
 
