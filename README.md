@@ -24,7 +24,7 @@ new ConcatPlugin({
     sourceMap: true, // generate sourceMap
     name: 'flexible', // used in html-webpack-plugin
     fileName: '[name].[hash].bundle.js', // would output to 'flexible.d41d8cd98f00b204e980.bundle.js'
-    filesToConcat: ['./src/lib/flexible.js', './src/lib/makegrid.js']
+    filesToConcat: ['./src/lib/flexible.js', './src/lib/makegrid.js', 'jquery']
 });
 
 ```
