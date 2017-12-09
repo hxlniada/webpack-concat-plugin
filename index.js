@@ -67,6 +67,16 @@ class ConcatPlugin {
 
         const concatPromise = () => self.filesToConcatAbsolute.map(fileName =>
             new Promise((resolve, reject) => {
+                if (!fileName.match(/^(\.|\/)/) && fs.lstatSync('./node_modules/' + fileName.split('/')[0]).isDirectory()) {
+                    let packageFile = './node_modules/' + fileName;
+                    if (fileName.includes('/')) {
+                        fileName = packageFile + '.js';
+                    }
+                    else {
+                        fileName = packageFile + '/' + JSON.parse(fs.readFileSync(path.resolve(packageFile + '/package.json')).toString()).main;
+                        if (!fileName.endsWith('.js')) fileName += '.js';
+                    }
+                }
                 fs.readFile(fileName, (err, data) => {
                     if (err) {
                         throw err;
