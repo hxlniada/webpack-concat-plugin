@@ -3,6 +3,7 @@
  * @author huangxueliang
  */
 const fs = require('fs');
+const Concat = require('concat-with-sourcemaps');
 const UglifyJS = require('uglify-es');
 const createHash = require('crypto').createHash;
 const path = require('path');
@@ -64,6 +65,7 @@ class ConcatPlugin {
     apply(compiler) {
         const self = this;
         let content = '';
+        let mapContent = '';
 
         const concatPromise = () => self.filesToConcatAbsolute.map(fileName =>
             new Promise((resolve, reject) => {
@@ -128,24 +130,22 @@ class ConcatPlugin {
                     content = result.code;
 
                     if (self.settings.sourceMap) {
-                        const mapContent = result.map.toString();
-                        compilation.assets[`${self.settings.fileName}.map`] = {
-                            source() {
-                                return mapContent;
-                            },
-                            size() {
-                                return mapContent.length;
-                            }
-                        };
-                        compilation.applyPlugins('module-asset', {
-                            userRequest: `${self.settings.name}.js.map`
-                        }, `${self.settings.fileName}.map`);
+                        mapContent = result.map.toString();
                     }
                 }
                 else {
-                    content = Object.keys(allFiles)
-                        .map(fileName => allFiles[fileName])
-                        .reduce((content1, content2) => (`${content1}\n${content2}`), '');
+                    const concat = new Concat(!!self.settings.sourceMap, self.settings.fileName, '\n');
+
+                    Object.keys(allFiles).forEach((fileName) => {
+                        concat.add(fileName, allFiles[fileName]);
+                    });
+
+                    content = concat.content.toString();
+
+                    if (self.settings.sourceMap) {
+                        content += `//# sourceMappingURL=${self.settings.fileName}.map`;
+                        mapContent = concat.sourceMap;
+                    }
                 }
 
                 compilation.assets[self.settings.fileName] = {
@@ -156,6 +156,20 @@ class ConcatPlugin {
                         return content.length;
                     }
                 };
+
+                if (self.settings.sourceMap) {
+                    compilation.assets[`${self.settings.fileName}.map`] = {
+                        source() {
+                            return mapContent;
+                        },
+                        size() {
+                            return mapContent.length;
+                        }
+                    };
+                    compilation.applyPlugins('module-asset', {
+                        userRequest: `${self.settings.name}.js.map`
+                    }, `${self.settings.fileName}.map`);
+                }
 
                 callback();
             });
