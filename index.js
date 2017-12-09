@@ -80,7 +80,7 @@ class ConcatPlugin {
                 return callback();
             }
             Promise.all(concatPromise()).then(files => {
-                const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2));
+                const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2), []);
                 self.settings.fileName = self.getFileName(allFiles);
 
                 if (self.settings.uglify) {
@@ -138,7 +138,7 @@ class ConcatPlugin {
         compiler.plugin('compilation', compilation => {
             compilation.plugin('html-webpack-plugin-before-html-generation', (htmlPluginData, callback) => {
                 Promise.all(concatPromise()).then(files => {
-                    const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2));
+                    const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2), []);
 
                     htmlPluginData.assets.webpackConcat = htmlPluginData.assets.webpackConcat || {};
 
