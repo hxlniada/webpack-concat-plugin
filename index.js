@@ -4,7 +4,7 @@
  */
 const fs = require('fs');
 const UglifyJS = require('uglify-es');
-const md5 = require('md5');
+const createHash = require('crypto').createHash;
 const path = require('path');
 
 class ConcatPlugin {
@@ -40,7 +40,8 @@ class ConcatPlugin {
         const content = Object.keys(files)
             .reduce((fileContent, fileName) => (fileContent + files[fileName]), '');
 
-        this.fileMd5 = md5(content);
+
+        this.fileMd5 = createHash('md5').update(content).digest('hex');
         return this.fileMd5;
     }
 
@@ -82,7 +83,7 @@ class ConcatPlugin {
                 const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2));
                 self.settings.fileName = self.getFileName(allFiles);
 
-                if (process.env.NODE_ENV === 'production' || self.settings.uglify) {
+                if (self.settings.uglify) {
                     let options = {};
 
                     if (typeof self.settings.uglify === 'object') {
@@ -92,7 +93,7 @@ class ConcatPlugin {
                     if (self.settings.sourceMap) {
                         options.sourceMap = {
                             filename: `${self.settings.fileName.split(path.sep).slice(-1).join(path.sep)}.map`
-                        }
+                        };
                     }
 
                     const result = UglifyJS.minify(allFiles, options);
