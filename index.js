@@ -4,7 +4,7 @@
  */
 const fs = require('fs');
 const UglifyJS = require('uglify-es');
-const md5 = require('md5');
+const createHash = require('crypto').createHash;
 const path = require('path');
 
 class ConcatPlugin {
@@ -14,8 +14,24 @@ class ConcatPlugin {
         // used to determine if we should emit files during compiler emit event
         this.startTime = Date.now();
         this.prevTimestamps = {};
+
         this.filesToConcatAbsolute = options.filesToConcat
-            .map(f => path.resolve(f));
+            .map(f => {
+                let tempPath = path.resolve(f);
+                let realPath;
+                try {
+                    realPath = require.resolve(tempPath);
+                }
+                catch (e) {
+                    try {
+                        realPath = require.resolve(f);
+                    }
+                    catch (e) {
+                        console.error(e);
+                    }
+                }
+                return realPath;
+            });
     }
 
     getFileName(files, filePath = this.settings.fileName) {
@@ -40,14 +56,16 @@ class ConcatPlugin {
         const content = Object.keys(files)
             .reduce((fileContent, fileName) => (fileContent + files[fileName]), '');
 
-        this.fileMd5 = md5(content);
+
+        this.fileMd5 = createHash('md5').update(content).digest('hex');
         return this.fileMd5;
     }
 
     apply(compiler) {
         const self = this;
         let content = '';
-        const concatPromise = () => self.settings.filesToConcat.map(fileName =>
+
+        const concatPromise = () => self.filesToConcatAbsolute.map(fileName =>
             new Promise((resolve, reject) => {
                 fs.readFile(fileName, (err, data) => {
                     if (err) {
@@ -78,11 +96,16 @@ class ConcatPlugin {
             if (!dependenciesChanged(compilation)) {
                 return callback();
             }
+
             Promise.all(concatPromise()).then(files => {
-                const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2));
+                const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2), {});
                 self.settings.fileName = self.getFileName(allFiles);
 
-                if (process.env.NODE_ENV === 'production' || self.settings.uglify) {
+                compilation.applyPlugins('module-asset', {
+                    userRequest: `${self.settings.name}.js`
+                }, self.settings.fileName);
+
+                if (self.settings.uglify) {
                     let options = {};
 
                     if (typeof self.settings.uglify === 'object') {
@@ -91,8 +114,9 @@ class ConcatPlugin {
 
                     if (self.settings.sourceMap) {
                         options.sourceMap = {
-                            filename: `${self.settings.fileName.split(path.sep).slice(-1).join(path.sep)}.map`
-                        }
+                            filename: `${self.settings.fileName.split(path.sep).slice(-1).join(path.sep)}.map`,
+                            url: `${self.settings.fileName}.map`
+                        };
                     }
 
                     const result = UglifyJS.minify(allFiles, options);
@@ -113,6 +137,9 @@ class ConcatPlugin {
                                 return mapContent.length;
                             }
                         };
+                        compilation.applyPlugins('module-asset', {
+                            userRequest: `${self.settings.name}.js.map`
+                        }, `${self.settings.fileName}.map`);
                     }
                 }
                 else {
@@ -135,9 +162,10 @@ class ConcatPlugin {
         });
 
         compiler.plugin('compilation', compilation => {
+
             compilation.plugin('html-webpack-plugin-before-html-generation', (htmlPluginData, callback) => {
                 Promise.all(concatPromise()).then(files => {
-                    const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2));
+                    const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2), {});
 
                     htmlPluginData.assets.webpackConcat = htmlPluginData.assets.webpackConcat || {};
 
@@ -148,6 +176,26 @@ class ConcatPlugin {
 
                     callback(null, htmlPluginData);
                 });
+            });
+
+            compilation.plugin('webpack-manifest-plugin-after-emit', (manifest = {}, callback) => {
+                if (self.settings.manifestName) {
+                    const outputFolder = compilation.options.output.path;
+                    const outputFile = path.resolve(compilation.options.output.path, self.settings.manifestName);
+                    const outputName = path.relative(outputFolder, outputFile);
+
+                    const json = JSON.stringify(manifest, null, 2);
+                    compilation.assets[outputName] = {
+                        source() {
+                            return json;
+                        },
+                        size() {
+                            return json.length;
+                        }
+                    };
+                }
+
+                callback(null, manifest);
             });
         });
     }
