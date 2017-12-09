@@ -1,4 +1,15 @@
 ## Change History
+### v2.0.0 (2017-12-09)
+* update uglify-js to uglify-es, thanks to [tomastrajan](https://github.com/tomastrajan)
+* feat: add integration tests, very thanks to [jiverson](https://github.com/jiverson)
+* Fix "Reduce of empty array with no initial value" error, thanks to [akempes](https://github.com/akempes)
+* support to call from package name, inspire by [funcphp](https://github.com/funcphp)
+* fix [#27](https://github.com/hxlniada/webpack-concat-plugin/issues/27)
+* Implement hook from webpack-manifest-plugin 2.0.0-rc.1, fix [#22](https://github.com/hxlniada/webpack-concat-plugin/issues/22)
+
+## breaking changes
+* Remove process.env.NODE_ENV fix [#24](https://github.com/hxlniada/webpack-concat-plugin/issues/24)
+
 ### v1.4.2 (2017-10-21)
 * fix #19; thanks to [gosp](https://github.com/gosp)
 

@@ -1,0 +1,5 @@
+/test
+/node_modules
+.travis.yml
+.gitattributes
+.editorconfig
