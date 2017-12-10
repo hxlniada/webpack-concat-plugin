@@ -36,7 +36,7 @@ class ConcatPlugin {
 
     getFileName(files, filePath = this.settings.fileName) {
         const fileRegExp = /\[name\]/;
-        const hashRegExp = /\[hash\]/;
+        const hashRegExp = /\[hash(?:(?::)([\d]+))?\]/;
 
         if (this.settings.useHash || hashRegExp.test(filePath)) {
             const fileMd5 = this.md5File(files);
@@ -44,7 +44,11 @@ class ConcatPlugin {
             if (!hashRegExp.test(filePath)) {
                 filePath = filePath.replace(/\.js$/, '.[hash].js');
             }
-            filePath = filePath.replace(hashRegExp, fileMd5.slice(0, 20));
+
+            const regResult = hashRegExp.exec(filePath);
+            const hashLength = regResult[1] ? Number(regResult[1]) : 20;
+
+            filePath = filePath.replace(hashRegExp, fileMd5.slice(0, hashLength));
         }
         return filePath.replace(fileRegExp, this.settings.name);
     }
