@@ -12,7 +12,7 @@ describe('ConcatPlugin', () => {
         expect(plugin.filesToConcatAbsolute.length).toEqual(3);
     });
 
-    it('should get hash length correct', () => {
+    it('should get hash length correctly', () => {
         const plugin = new ConcatPlugin({
             name: 'test',
             filesToConcat: []
