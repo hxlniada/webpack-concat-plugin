@@ -11,7 +11,7 @@
 * fix [#27](https://github.com/hxlniada/webpack-concat-plugin/issues/27)
 * Implement hook from webpack-manifest-plugin 2.0.0-rc.1, fix [#22](https://github.com/hxlniada/webpack-concat-plugin/issues/22)
 
-## breaking changes
+#### breaking changes
 * Remove process.env.NODE_ENV fix [#24](https://github.com/hxlniada/webpack-concat-plugin/issues/24)
 
 ### v1.4.2 (2017-10-21)
