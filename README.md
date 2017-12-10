@@ -22,7 +22,7 @@ new ConcatPlugin({
     uglify: true, // or you can set uglifyjs options
     sourceMap: true, // generate sourceMap
     name: 'flexible', // used in html-webpack-plugin
-    fileName: '[name].[hash:8].bundle.js', // would output to 'flexible.d41d8cd98f00b204e980.bundle.js'
+    fileName: '[name].[hash:8].bundle.js', // would output to 'flexible.d41d8cd9.bundle.js'
     filesToConcat: ['./src/lib/flexible.js', './src/lib/makegrid.js', 'jquery']
 });
 
