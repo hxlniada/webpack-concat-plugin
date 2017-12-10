@@ -177,26 +177,6 @@ class ConcatPlugin {
                     callback(null, htmlPluginData);
                 });
             });
-
-            compilation.plugin('webpack-manifest-plugin-after-emit', (manifest = {}, callback) => {
-                if (self.settings.manifestName) {
-                    const outputFolder = compilation.options.output.path;
-                    const outputFile = path.resolve(compilation.options.output.path, self.settings.manifestName);
-                    const outputName = path.relative(outputFolder, outputFile);
-
-                    const json = JSON.stringify(manifest, null, 2);
-                    compilation.assets[outputName] = {
-                        source() {
-                            return json;
-                        },
-                        size() {
-                            return json.length;
-                        }
-                    };
-                }
-
-                callback(null, manifest);
-            });
         });
     }
 }
