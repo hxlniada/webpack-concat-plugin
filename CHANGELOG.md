@@ -3,7 +3,7 @@
 * update uglify-js to uglify-es, thanks to [tomastrajan](https://github.com/tomastrajan)
 * feat: add integration tests, very thanks to [jiverson](https://github.com/jiverson)
 * Fix "Reduce of empty array with no initial value" error, thanks to [akempes](https://github.com/akempes)
-* support to call from package name, inspire by [funcphp](https://github.com/funcphp)
+* support to call from package name, inspired by [funcphp](https://github.com/funcphp)
 * fix [#27](https://github.com/hxlniada/webpack-concat-plugin/issues/27)
 * Implement hook from webpack-manifest-plugin 2.0.0-rc.1, fix [#22](https://github.com/hxlniada/webpack-concat-plugin/issues/22)
 
