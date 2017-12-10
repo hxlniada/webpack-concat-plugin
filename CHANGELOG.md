@@ -1,4 +1,8 @@
 ## Change History
+### v2.1.0 (2017-12-10)
+* don't need to set manifestName option when use webpack-manifest-plugin
+* add support to set hash length
+
 ### v2.0.0 (2017-12-09)
 * update uglify-js to uglify-es, thanks to [tomastrajan](https://github.com/tomastrajan)
 * feat: add integration tests, very thanks to [jiverson](https://github.com/jiverson)
