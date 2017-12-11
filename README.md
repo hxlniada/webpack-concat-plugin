@@ -1,20 +1,28 @@
 # webpack-concat-plugin
+
+[![Build Status](https://img.shields.io/travis/hxlniada/webpack-concat-plugin.svg)](https://travis-ci.org/hxlniada/webpack-concat-plugin)
 [![npm package](https://img.shields.io/npm/v/webpack-concat-plugin.svg)](https://www.npmjs.org/package/webpack-concat-plugin)
 [![npm downloads](http://img.shields.io/npm/dm/webpack-concat-plugin.svg)](https://www.npmjs.org/package/webpack-concat-plugin)
-> a plugin to help webpack to concat js and inject to html-webpack-plugin
+
+> A plugin to help webpack concat js and inject into html
+
 ### Why
-webpack is really powerful, but when I just want to concat the static file and inject to html without webpack JSONP code wrapper. After all days search, it seems impossible to do that without other tool's help.
+
+Webpack is really powerful. However, when I want to concat the static files and inject into html without webpack JSONP code wrapper, it seems impossible to do that without other tool's help.
 
 ### Install
+
 ```
 npm install webpack-concat-plugin --save-dev
 ```
 
 ### Features
-* concat
-* inject to html(with html-webpack-plugin)
+
+- Concat
+- Inject to html(with html-webpack-plugin)
 
 ### Usage
+
 ```
 const ConcatPlugin = require('webpack-concat-plugin');
 
@@ -27,7 +35,9 @@ new ConcatPlugin({
 });
 
 ```
-### Inject to html(by hand)
+
+### Inject to html (by hand)
+
 ```
 doctype html
 ...
@@ -36,5 +46,6 @@ doctype html
 ```
 
 ### TODO
-* add css support
-* auto inject to html
+
+- [ ] add css support
+- [ ] auto inject to html
