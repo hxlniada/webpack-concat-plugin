@@ -1,6 +1,6 @@
 {
   "name": "webpack-concat-plugin",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "author": "huangxueliang",
   "description": "Webpack file concatenation.",
   "license": "ISC",
@@ -12,7 +12,8 @@
     "build": "babel index.js -d ./dist"
   },
   "dependencies": {
-    "uglify-es": "^3.2.1"
+    "concat-with-sourcemaps": "^1.0.4",
+    "uglify-es": "^3.2.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

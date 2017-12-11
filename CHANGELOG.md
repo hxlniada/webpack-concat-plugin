@@ -1,4 +1,7 @@
 ## Change History
+### v2.2.0 (2017-12-11)
+* fix not outputting sourcemaps when `uglify: false`, thanks to [jaketodaro](https://github.com/jaketodaro)
+
 ### v2.1.0 (2017-12-10)
 * don't need to set manifestName option when use webpack-manifest-plugin
 * add support to set hash length
