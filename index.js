@@ -107,10 +107,6 @@ class ConcatPlugin {
                 const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2), {});
                 self.settings.fileName = self.getFileName(allFiles);
 
-                compilation.applyPlugins('module-asset', {
-                    userRequest: `${self.settings.name}.js`
-                }, self.settings.fileName);
-
                 if (self.settings.uglify) {
                     let options = {};
 
@@ -160,6 +156,10 @@ class ConcatPlugin {
                         return content.length;
                     }
                 };
+
+                compilation.applyPlugins('module-asset', {
+                    userRequest: `${self.settings.name}.js`
+                }, self.settings.fileName);
 
                 if (self.settings.sourceMap) {
                     compilation.assets[`${self.settings.fileName}.map`] = {
