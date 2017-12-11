@@ -6,8 +6,9 @@ module.exports = {
     plugins: [
         new ConcatPlugin({
             uglify: true,
+            useHash: true,
             name: 'file',
-            fileName: '[name].js',
+            fileName: '[name].[hash].js',
             filesToConcat: ['./test/fixtures/a.js', './test/fixtures/b.js']
         })
     ]

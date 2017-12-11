@@ -12,6 +12,7 @@
     "build": "babel index.js -d ./dist"
   },
   "dependencies": {
+    "concat-with-sourcemaps": "^1.0.4",
     "uglify-es": "^3.2.1"
   },
   "devDependencies": {

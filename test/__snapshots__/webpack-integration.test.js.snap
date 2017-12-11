@@ -20,8 +20,7 @@ exports[`Webpack Integration Tests html-plugin 2`] = `
 `;
 
 exports[`Webpack Integration Tests simple 1`] = `
-"
-var x = 1;
+"var x = 1;
 
 
 /**
@@ -51,10 +50,87 @@ module.exports = function isObject(x) {
 `;
 
 exports[`Webpack Integration Tests source-map 1`] = `
+"var x = 1;
+
+
+/**
+ * Redefine \\"x\\"
+ * @type {number}
+ */
+x = 10;
+
+var y = 2;
+
+
+
+
+
+
+
+y = 5;
+debugger;
+// End of this test file
+//# sourceMappingURL=file.js.map"
+`;
+
+exports[`Webpack Integration Tests source-map-uglify 1`] = `
 "var x=1;x=10;var y=2;y=5;
+//# sourceMappingURL=file.js.map"
+`;
+
+exports[`Webpack Integration Tests source-map-uglify-use-hash 1`] = `
+"var x=1;x=10;var y=2;y=5;
+//# sourceMappingURL=file.0ff883d05f62ecabac00.js.map"
+`;
+
+exports[`Webpack Integration Tests source-map-use-hash 1`] = `
+"var x = 1;
+
+
+/**
+ * Redefine \\"x\\"
+ * @type {number}
+ */
+x = 10;
+
+var y = 2;
+
+
+
+
+
+
+
+y = 5;
+debugger;
+// End of this test file
 //# sourceMappingURL=file.0ff883d05f62ecabac00.js.map"
 `;
 
 exports[`Webpack Integration Tests uglify 1`] = `"var x=1;x=10;var y=2;y=5;"`;
 
-exports[`Webpack Integration Tests use-hash 1`] = `"var x=1;x=10;var y=2;y=5;"`;
+exports[`Webpack Integration Tests uglify-use-hash 1`] = `"var x=1;x=10;var y=2;y=5;"`;
+
+exports[`Webpack Integration Tests use-hash 1`] = `
+"var x = 1;
+
+
+/**
+ * Redefine \\"x\\"
+ * @type {number}
+ */
+x = 10;
+
+var y = 2;
+
+
+
+
+
+
+
+y = 5;
+debugger;
+// End of this test file
+"
+`;
