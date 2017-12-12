@@ -1,8 +1,8 @@
 ## Change History
 ### v2.3.0 (2017-12-12)
-* filesToConcat now support (glob)[https://github.com/sindresorhus/globby] syntax
+* filesToConcat now support [glob](https://github.com/sindresorhus/globby) syntax
 * add schema
-* now use webpack's (enhanced-resolve)[https://github.com/webpack/enhanced-resolve] to solve the module path, and the root path is webpack's context path now.
+* now use webpack's [enhanced-resolve](https://github.com/webpack/enhanced-resolve) to solve the module path, and the root path is webpack's context path now.
 * fix other bugs
 
 #### noted
