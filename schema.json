@@ -11,6 +11,9 @@
         "sourceMap": {
             "type": "boolean"
         },
+        "useHash": {
+            "type": "boolean"
+        },
         "name": {
             "type": "string"
         },
