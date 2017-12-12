@@ -1,4 +1,14 @@
 ## Change History
+### v2.3.0 (2017-12-12)
+* filesToConcat now support (glob)[https://github.com/sindresorhus/globby] syntax
+* add schema
+* now use webpack's (enhanced-resolve)[https://github.com/webpack/enhanced-resolve] to solve the module path, and the root path is webpack's context path now.
+* fix other bugs
+
+#### noted
+
+* due to the way to find modules has changed, you may need to change your path
+
 ### v2.2.0 (2017-12-11)
 * fix not outputting sourcemaps when `uglify: false`, thanks to [jaketodaro](https://github.com/jaketodaro)
 
