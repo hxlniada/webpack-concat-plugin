@@ -232,6 +232,8 @@ class ConcatPlugin {
     }
 
     apply(compiler) {
+        // the plugin order matters
+        let isAfterWebpackHtml = false;
 
         this.resolveReadFiles(compiler);
 
@@ -250,10 +252,25 @@ class ConcatPlugin {
             return changed;
         };
 
+        const processCompiling = (compilation, callback) => {
+            self.filesToConcatAbsolutePromise.then(filesToConcatAbsolute => {
+                compilation.fileDependencies.push(...filesToConcatAbsolute);
+                if (!dependenciesChanged(compilation, filesToConcatAbsolute)) {
+                    return callback();
+                }
+                return self.getReadFilePromise(true).then(files => {
+                    self.resolveConcatAndUglify(compilation, files);
+
+                    callback();
+                });
+            }).catch(e => {
+                console.error(e);
+            });
+        };
+
         compiler.plugin('compilation', compilation => {
 
             compilation.plugin('html-webpack-plugin-before-html-generation', (htmlPluginData, callback) => {
-
                 const injectToHtml = () => {
                     htmlPluginData.assets.webpackConcat = htmlPluginData.assets.webpackConcat || {};
 
@@ -263,22 +280,26 @@ class ConcatPlugin {
                     htmlPluginData.assets.webpackConcat[self.settings.name] = relativePath;
                 };
 
-                return self.filesToConcatAbsolutePromise.then(filesToConcatAbsolute => {
-                    compilation.fileDependencies.push(...filesToConcatAbsolute);
-                    if (!dependenciesChanged(compilation, filesToConcatAbsolute)) {
+                if (!self.finalFileName || isAfterWebpackHtml) {
+                    isAfterWebpackHtml = true;
+                    processCompiling(compilation, () => {
                         injectToHtml();
-                        return callback(null, htmlPluginData);
-                    }
-                    return self.getReadFilePromise(true).then(files => {
-                        self.resolveConcatAndUglify(compilation, files);
-                        injectToHtml();
-
                         callback(null, htmlPluginData);
                     });
-                }).catch(e => {
-                    console.error(e);
-                });
+                }
+                else {
+                    injectToHtml();
+                    callback(null, htmlPluginData);
+                }
             });
+        });
+        compiler.plugin('emit', (compilation, callback) => {
+            if (!isAfterWebpackHtml) {
+                processCompiling(compilation, callback);
+            }
+            else {
+                callback();
+            }
         });
     }
 }

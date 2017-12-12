@@ -5,6 +5,7 @@ module.exports = {
     entry: './index.js',
     plugins: [
         new ConcatPlugin({
+            uglify: true,
             sourceMap: true,
             name: 'file',
             fileName: '[name].js',
