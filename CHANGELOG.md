@@ -7,7 +7,7 @@
 
 #### noted
 
-* due to the way to find the module has changed, you may need to change your path
+* due to the way to find modules has changed, you may need to change your path
 
 ### v2.2.0 (2017-12-11)
 * fix not outputting sourcemaps when `uglify: false`, thanks to [jaketodaro](https://github.com/jaketodaro)
