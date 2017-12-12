@@ -20,8 +20,8 @@ class ConcatPlugin {
             name: 'result'
         }, options);
 
-        if (!options.filesToConcat) {
-            throw new Error('webpackConcatPlugin: option filesToConcat is required');
+        if (!options.filesToConcat || !options.filesToConcat.length) {
+            throw new Error('webpackConcatPlugin: option filesToConcat is required and should not be empty');
         }
 
         validateOptions(schema, options, 'webpackConcatPlugin');
@@ -69,24 +69,28 @@ class ConcatPlugin {
         return this.fileMd5;
     }
 
-    resolveReadFiles(compiler) {
-        const self = this;
-        let readFilePromise;
-
-        const relativePathArrayPromise = Promise.all(this.settings.filesToConcat.map(f => {
-            if (globby.hasMagic(f)) {
-                return globby(f, {
-                    cwd: compiler.options.context,
-                    nodir: true
-                });
-            }
-            return f;
-        })).then(rawResult =>
+    getRelativePathAsync(context) {
+        return Promise.all(this.settings.filesToConcat.map(f => {
+                if (globby.hasMagic(f)) {
+                    return globby(f, {
+                        cwd: context,
+                        nodir: true
+                    });
+                }
+                return f;
+            })).then(rawResult =>
                 rawResult.reduce((target, resource) => target.concat(resource), [])
             )
             .catch(e => {
                 console.error(e);
             });
+    }
+
+    resolveReadFiles(compiler) {
+        const self = this;
+        let readFilePromise;
+
+        const relativePathArrayPromise = this.getRelativePathAsync(compiler.options.context);
 
         this.filesToConcatAbsolutePromise = new Promise((resolve, reject) => {
             compiler.plugin('after-resolvers', compiler => {

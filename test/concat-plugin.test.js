@@ -1,25 +1,35 @@
 import ConcatPlugin from '../index';
+import path from 'path';
 
-describe('ConcatPlugin', () => {
-    it('throws if no options are given', () => {
-        expect(() => new ConcatPlugin()).toThrow();
+describe('json schema validation', () => {
+    it('throws if an incorrect config is passed in', () => {
+        expect(() => {
+            new ConcatPlugin({filesToConcat: 'test'});
+        }).toThrow();
     });
 
-    it('should check absolute path for files', () => {
+    it('does not throw if filesToConcat is specified', () => {
+        expect(() => new ConcatPlugin({filesToConcat: ['./test/fixtures/a.js']})).doesNotThrow;
+    });
+});
+
+describe('ConcatPlugin', () => {
+
+    it('should get relative path correctly', () => {
         const plugin = new ConcatPlugin({
-            filesToConcat: ['./test/fixtures/a.js', './test/fixtures/b.js', 'is-object']
+            filesToConcat: ['./test/fixtures/*.js', 'is-object']
         });
-        plugin.filesToConcatAbsolutePromise.then(filesToConcatAbsolute => {
-            expect(filesToConcatAbsolute.length).toEqual(3)
+
+        plugin.getRelativePathAsync(path.resolve(__dirname, '../')).then(relativePaths => {
+            expect(relativePaths.length).toEqual(3);
         });
     });
 
     it('should get hash length correctly', () => {
         const plugin = new ConcatPlugin({
-            name: 'test',
-            filesToConcat: []
+            filesToConcat: ['./test/fixtures/a.js']
         });
-        expect(plugin.getFileName('aa', '[name].[hash].js')).toEqual('test.4124bc0a9335c27f086f.js');
-        expect(plugin.getFileName('aa', '[name].[hash:8].js')).toEqual('test.4124bc0a.js');
+        expect(plugin.getFileName('aa', '[name].[hash].js')).toEqual('result.4124bc0a9335c27f086f.js');
+        expect(plugin.getFileName('aa', '[name].[hash:8].js')).toEqual('result.4124bc0a.js');
     });
 });

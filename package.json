@@ -4,12 +4,12 @@
   "author": "huangxueliang",
   "description": "Webpack file concatenation.",
   "license": "ISC",
-  "main": "./dist/index.js",
+  "main": "./release.js",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --collectCoverageFrom='src/**/*.js' --coverage",
-    "build": "babel index.js -d ./dist"
+    "build": "babel index.js --out-file release.js"
   },
   "dependencies": {
     "concat-with-sourcemaps": "^1.0.4",
