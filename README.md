@@ -19,11 +19,16 @@ npm install webpack-concat-plugin --save-dev
 const ConcatPlugin = require('webpack-concat-plugin');
 
 new ConcatPlugin({
-    uglify: true, // or you can set uglifyjs options
-    sourceMap: true, // generate sourceMap
-    name: 'flexible', // used in html-webpack-plugin
-    fileName: '[name].[hash:8].bundle.js', // would output to 'flexible.d41d8cd9.bundle.js'
-    filesToConcat: ['./src/lib/flexible.js', './src/lib/makegrid.js', 'jquery']
+    // can set uglifyjs3 options, default to false
+    uglify: true,
+    // generate sourceMap, default to false
+    sourceMap: true,
+    // used in html-webpack-plugin, default to 'result'
+    name: 'flexible',
+    // default to [name].js
+    fileName: '/path/to/[name].[hash:8].bundle.js',
+    // support normal path, npm packages, or glob pattern: https://github.com/sindresorhus/globby
+    filesToConcat: ['./src/lib/flexible.js', './src/lib/makegrid.js', 'jquery', './src/dep/**', ['./test/**', '!./test/exclude/**']]
 });
 
 ```
