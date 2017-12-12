@@ -17,7 +17,8 @@ class ConcatPlugin {
             uglify: false,
             sourceMap: false,
             fileName: '[name].js',
-            name: 'result'
+            name: 'result',
+            injectType: 'prepend'
         }, options);
 
         if (!options.filesToConcat || !options.filesToConcat.length) {
@@ -269,15 +270,23 @@ class ConcatPlugin {
         };
 
         compiler.plugin('compilation', compilation => {
+            let assetPath;
 
             compilation.plugin('html-webpack-plugin-before-html-generation', (htmlPluginData, callback) => {
                 const injectToHtml = () => {
                     htmlPluginData.assets.webpackConcat = htmlPluginData.assets.webpackConcat || {};
 
-                    const relativePath = path.relative(htmlPluginData.outputName, self.finalFileName)
+                    assetPath = path.relative(htmlPluginData.outputName, self.finalFileName)
                         .split(path.sep).slice(1).join('/');
 
-                    htmlPluginData.assets.webpackConcat[self.settings.name] = relativePath;
+                    htmlPluginData.assets.webpackConcat[self.settings.name] = assetPath;
+
+                    if (self.settings.injectType === 'prepend') {
+                        htmlPluginData.assets.js.unshift(assetPath);
+                    }
+                    else if (self.settings.injectType === 'append') {
+                        htmlPluginData.assets.js.push(assetPath);
+                    }
                 };
 
                 if (!self.finalFileName || isAfterWebpackHtml) {
@@ -291,6 +300,18 @@ class ConcatPlugin {
                     injectToHtml();
                     callback(null, htmlPluginData);
                 }
+            });
+
+            compilation.plugin('html-webpack-plugin-alter-asset-tags', (htmlPluginData, callback) => {
+                const tags = htmlPluginData.head.concat(htmlPluginData.body);
+                const resultTag = tags.filter(tag =>
+                    tag.attributes.src === assetPath
+                );
+                if (resultTag && self.settings.attributes) {
+                    Object.assign(resultTag[0].attributes, self.settings.attributes);
+                }
+
+                callback(null, htmlPluginData);
             });
         });
         compiler.plugin('emit', (compilation, callback) => {
