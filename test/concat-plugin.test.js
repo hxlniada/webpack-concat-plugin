@@ -9,7 +9,9 @@ describe('ConcatPlugin', () => {
         const plugin = new ConcatPlugin({
             filesToConcat: ['./test/fixtures/a.js', './test/fixtures/b.js', 'is-object']
         });
-        expect(plugin.filesToConcatAbsolute.length).toEqual(3);
+        plugin.filesToConcatAbsolutePromise.then(filesToConcatAbsolute => {
+            expect(filesToConcatAbsolute.length).toEqual(3)
+        });
     });
 
     it('should get hash length correctly', () => {

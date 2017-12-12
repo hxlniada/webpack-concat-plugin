@@ -7,7 +7,6 @@ module.exports = {
         new HtmlWebpackPlugin({ template: './index.ejs' }),
         new ConcatPlugin({
             uglify: true,
-            useHash: true,
             sourceMap: true,
             name: 'file',
             fileName: '[name].[hash].js',

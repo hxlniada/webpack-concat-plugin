@@ -1,0 +1,24 @@
+{
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "uglify": {
+            "anyOf": [
+                {"type": "object"},
+                {"type": "boolean"}
+            ]
+        },
+        "sourceMap": {
+            "type": "boolean"
+        },
+        "name": {
+            "type": "string"
+        },
+        "fileName": {
+            "type": "string"
+        },
+        "filesToConcat": {
+            "type": "array"
+        }
+    }
+}

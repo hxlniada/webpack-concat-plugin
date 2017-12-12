@@ -6,7 +6,6 @@ module.exports = {
     plugins: [
         new ConcatPlugin({
             sourceMap: true,
-            uglify: true,
             name: 'file',
             fileName: '[name].js',
             filesToConcat: ['./test/fixtures/a.js', './test/fixtures/b.js']

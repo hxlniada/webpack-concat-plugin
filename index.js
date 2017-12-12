@@ -8,14 +8,30 @@ const UglifyJS = require('uglify-es');
 const createHash = require('crypto').createHash;
 const path = require('path');
 const globby = require('globby');
+const validateOptions = require('schema-utils');
+const schema = require('./schema.json');
 
 class ConcatPlugin {
     constructor(options) {
+        options = Object.assign({
+            uglify: false,
+            sourceMap: false,
+            fileName: '[name].js',
+            name: 'result'
+        }, options);
+
+        if (!options.filesToConcat) {
+            throw new Error('webpackConcatPlugin: option filesToConcat is required');
+        }
+
+        validateOptions(schema, options, 'webpackConcatPlugin');
+
         this.settings = options;
 
         // used to determine if we should emit files during compiler emit event
         this.startTime = Date.now();
         this.prevTimestamps = {};
+        this.needCreateNewFile = true;
     }
 
     getFileName(files, filePath = this.settings.fileName) {
@@ -56,7 +72,6 @@ class ConcatPlugin {
     resolveReadFiles(compiler) {
         const self = this;
         let readFilePromise;
-        this.filesToConcatAbsolutePromise = [];
 
         const relativePathArrayPromise = Promise.all(this.settings.filesToConcat.map(f => {
             if (globby.hasMagic(f)) {
@@ -73,29 +88,32 @@ class ConcatPlugin {
                 console.error(e);
             });
 
-        compiler.plugin('after-resolvers', compiler => {
-            self.filesToConcatAbsolutePromise = relativePathArrayPromise
-                .then(relativeFilePathArray =>
-                    Promise.all(relativeFilePathArray.map(relativeFilePath =>
-                        new Promise((resolve, reject) =>
-                            compiler.resolvers.normal.resolve(
-                                {},
-                                compiler.options.context,
-                                relativeFilePath,
-                                (err, filePath) => {
-                                    if (err) {
-                                        reject(err);
+        this.filesToConcatAbsolutePromise = new Promise((resolve, reject) => {
+            compiler.plugin('after-resolvers', compiler => {
+                resolve(relativePathArrayPromise
+                    .then(relativeFilePathArray =>
+                        Promise.all(relativeFilePathArray.map(relativeFilePath =>
+                            new Promise((resolve, reject) =>
+                                compiler.resolvers.normal.resolve(
+                                    {},
+                                    compiler.options.context,
+                                    relativeFilePath,
+                                    (err, filePath) => {
+                                        if (err) {
+                                            reject(err);
+                                        }
+                                        else {
+                                            resolve(filePath);
+                                        }
                                     }
-                                    else {
-                                        resolve(filePath);
-                                    }
-                                }
+                                )
                             )
-                        )
-                    ))
-                ).catch(e => {
-                    console.error(e);
-                });
+                        ))
+                    ).catch(e => {
+                        console.error(e);
+                    })
+                );
+            });
         });
 
         const createNewPromise = () => {
