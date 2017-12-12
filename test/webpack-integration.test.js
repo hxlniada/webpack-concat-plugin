@@ -7,6 +7,10 @@ const cases = process.env.CASES ? process.env.CASES.split(',') : fs.readdirSync(
 
 describe('Webpack Integration Tests', () => {
     cases.forEach((testCase) => {
+        if (testCase === '.DS_Store') {
+            return;
+        }
+
         it(testCase, (done) => {
             let options = { entry: { test: './index.js' } };
             const testDirectory = path.join(__dirname, 'cases', testCase);

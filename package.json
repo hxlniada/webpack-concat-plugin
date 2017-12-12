@@ -1,18 +1,20 @@
 {
   "name": "webpack-concat-plugin",
-  "version": "2.2.0",
+  "version": "2.3.0-beta.1",
   "author": "huangxueliang",
   "description": "Webpack file concatenation.",
   "license": "ISC",
-  "main": "./dist/index.js",
+  "main": "./release.js",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --collectCoverageFrom='src/**/*.js' --coverage",
-    "build": "babel index.js -d ./dist"
+    "build": "babel index.js --out-file release.js"
   },
   "dependencies": {
     "concat-with-sourcemaps": "^1.0.4",
+    "globby": "^7.1.1",
+    "schema-utils": "^0.3.0",
     "uglify-es": "^3.2.2"
   },
   "devDependencies": {
