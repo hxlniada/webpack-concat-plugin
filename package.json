@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "concat-with-sourcemaps": "^1.0.4",
+    "globby": "^7.1.1",
     "uglify-es": "^3.2.2"
   },
   "devDependencies": {

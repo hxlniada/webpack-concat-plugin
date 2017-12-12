@@ -7,6 +7,7 @@ const Concat = require('concat-with-sourcemaps');
 const UglifyJS = require('uglify-es');
 const createHash = require('crypto').createHash;
 const path = require('path');
+const globby = require('globby');
 
 class ConcatPlugin {
     constructor(options) {
@@ -15,27 +16,13 @@ class ConcatPlugin {
         // used to determine if we should emit files during compiler emit event
         this.startTime = Date.now();
         this.prevTimestamps = {};
-
-        this.filesToConcatAbsolute = options.filesToConcat
-            .map(f => {
-                let tempPath = path.resolve(f);
-                let realPath;
-                try {
-                    realPath = require.resolve(tempPath);
-                }
-                catch (e) {
-                    try {
-                        realPath = require.resolve(f);
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
-                }
-                return realPath;
-            });
     }
 
     getFileName(files, filePath = this.settings.fileName) {
+        if (!this.needCreateNewFile) {
+            return this.finalFileName;
+        }
+
         const fileRegExp = /\[name\]/;
         const hashRegExp = /\[hash(?:(?::)([\d]+))?\]/;
 
@@ -55,35 +42,180 @@ class ConcatPlugin {
     }
 
     md5File(files) {
-        if (this.fileMd5) {
+        if (this.fileMd5 && !this.needCreateNewFile) {
             return this.fileMd5;
         }
         const content = Object.keys(files)
             .reduce((fileContent, fileName) => (fileContent + files[fileName]), '');
 
-
         this.fileMd5 = createHash('md5').update(content).digest('hex');
+
         return this.fileMd5;
     }
 
-    apply(compiler) {
+    resolveReadFiles(compiler) {
         const self = this;
+        let readFilePromise;
+        this.filesToConcatAbsolutePromise = [];
+
+        const relativePathArrayPromise = Promise.all(this.settings.filesToConcat.map(f => {
+            if (globby.hasMagic(f)) {
+                return globby(f, {
+                    cwd: compiler.options.context,
+                    nodir: true
+                });
+            }
+            return f;
+        })).then(rawResult =>
+                rawResult.reduce((target, resource) => target.concat(resource), [])
+            )
+            .catch(e => {
+                console.error(e);
+            });
+
+        compiler.plugin('after-resolvers', compiler => {
+            self.filesToConcatAbsolutePromise = relativePathArrayPromise
+                .then(relativeFilePathArray =>
+                    Promise.all(relativeFilePathArray.map(relativeFilePath =>
+                        new Promise((resolve, reject) =>
+                            compiler.resolvers.normal.resolve(
+                                {},
+                                compiler.options.context,
+                                relativeFilePath,
+                                (err, filePath) => {
+                                    if (err) {
+                                        reject(err);
+                                    }
+                                    else {
+                                        resolve(filePath);
+                                    }
+                                }
+                            )
+                        )
+                    ))
+                ).catch(e => {
+                    console.error(e);
+                });
+        });
+
+        const createNewPromise = () => {
+            self.needCreateNewFile = true;
+
+            return this.filesToConcatAbsolutePromise
+                .then(filePathArray =>
+                    Promise.all(filePathArray.map(
+                        filePath => new Promise((resolve, reject) => {
+                            fs.readFile(filePath, (err, data) => {
+                                if (err) {
+                                    reject(err);
+                                }
+                                else {
+                                    resolve({
+                                        [filePath]: data.toString()
+                                    });
+                                }
+                            });
+                        })
+                    ))
+                ).catch(e => {
+                    console.error(e);
+                });
+        };
+
+        this.getReadFilePromise = createNew => {
+            if (!readFilePromise || createNew) {
+                readFilePromise = createNewPromise();
+            }
+            return readFilePromise;
+        };
+    }
+
+    resolveConcatAndUglify(compilation, files) {
+
+        const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2), {});
         let content = '';
         let mapContent = '';
 
-        const concatPromise = () => self.filesToConcatAbsolute.map(fileName =>
-            new Promise((resolve, reject) => {
-                fs.readFile(fileName, (err, data) => {
-                    if (err) {
-                        throw err;
-                    }
-                    resolve({
-                        [fileName]: data.toString()
-                    });
-                });
-            })
-        );
-        const dependenciesChanged = compilation => {
+        this.finalFileName = this.getFileName(allFiles);
+
+        if (this.settings.uglify) {
+            let options = {};
+
+            if (typeof this.settings.uglify === 'object') {
+                options = Object.assign({}, this.settings.uglify, options);
+            }
+
+            if (this.settings.sourceMap) {
+                options.sourceMap = {
+                    filename: `${this.finalFileName.split(path.sep).slice(-1).join(path.sep)}.map`,
+                    url: `${this.finalFileName}.map`
+                };
+            }
+
+            const result = UglifyJS.minify(allFiles, options);
+
+            if (result.error) {
+                throw result.error;
+            }
+
+            content = result.code;
+
+            if (this.settings.sourceMap) {
+                mapContent = result.map.toString();
+            }
+        }
+        else {
+            const concat = new Concat(!!this.settings.sourceMap, this.finalFileName, '\n');
+
+            Object.keys(allFiles).forEach(fileName => {
+                concat.add(fileName, allFiles[fileName]);
+            });
+
+            content = concat.content.toString();
+
+            if (this.settings.sourceMap) {
+                content += `//# sourceMappingURL=${this.finalFileName}.map`;
+                mapContent = concat.sourceMap;
+            }
+        }
+
+        compilation.assets[this.finalFileName] = {
+            source() {
+                return content;
+            },
+            size() {
+                return content.length;
+            }
+        };
+
+        compilation.applyPlugins('module-asset', {
+            userRequest: `${this.settings.name}.js`
+        }, this.finalFileName);
+
+        if (this.settings.sourceMap) {
+            compilation.assets[`${this.finalFileName}.map`] = {
+                source() {
+                    return mapContent;
+                },
+                size() {
+                    return mapContent.length;
+                }
+            };
+            compilation.applyPlugins('module-asset', {
+                userRequest: `${this.settings.name}.js.map`
+            }, `${this.finalFileName}.map`);
+        }
+
+        this.needCreateNewFile = false;
+    }
+
+    apply(compiler) {
+
+        this.resolveReadFiles(compiler);
+
+        const self = this;
+
+        const dependenciesChanged = (compilation, filesToConcatAbsolute) => {
             const fileTimestampsKeys = Object.keys(compilation.fileTimestamps);
             // Since there are no time stamps, assume this is the first run and emit files
             if (!fileTimestampsKeys.length) {
@@ -91,108 +223,38 @@ class ConcatPlugin {
             }
             const changed = fileTimestampsKeys.filter(watchfile =>
                 (self.prevTimestamps[watchfile] || self.startTime) < (compilation.fileTimestamps[watchfile] || Infinity)
-            ).some(f => self.filesToConcatAbsolute.includes(f));
+            ).some(f => filesToConcatAbsolute.includes(f));
             this.prevTimestamps = compilation.fileTimestamps;
             return changed;
         };
 
-        compiler.plugin('emit', (compilation, callback) => {
-
-            compilation.fileDependencies.push(...self.filesToConcatAbsolute);
-            if (!dependenciesChanged(compilation)) {
-                return callback();
-            }
-
-            Promise.all(concatPromise()).then(files => {
-                const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2), {});
-                self.settings.fileName = self.getFileName(allFiles);
-
-                if (self.settings.uglify) {
-                    let options = {};
-
-                    if (typeof self.settings.uglify === 'object') {
-                        options = Object.assign({}, self.settings.uglify, options);
-                    }
-
-                    if (self.settings.sourceMap) {
-                        options.sourceMap = {
-                            filename: `${self.settings.fileName.split(path.sep).slice(-1).join(path.sep)}.map`,
-                            url: `${self.settings.fileName}.map`
-                        };
-                    }
-
-                    const result = UglifyJS.minify(allFiles, options);
-
-                    if (result.error) {
-                        throw result.error;
-                    }
-
-                    content = result.code;
-
-                    if (self.settings.sourceMap) {
-                        mapContent = result.map.toString();
-                    }
-                }
-                else {
-                    const concat = new Concat(!!self.settings.sourceMap, self.settings.fileName, '\n');
-
-                    Object.keys(allFiles).forEach((fileName) => {
-                        concat.add(fileName, allFiles[fileName]);
-                    });
-
-                    content = concat.content.toString();
-
-                    if (self.settings.sourceMap) {
-                        content += `//# sourceMappingURL=${self.settings.fileName}.map`;
-                        mapContent = concat.sourceMap;
-                    }
-                }
-
-                compilation.assets[self.settings.fileName] = {
-                    source() {
-                        return content;
-                    },
-                    size() {
-                        return content.length;
-                    }
-                };
-
-                compilation.applyPlugins('module-asset', {
-                    userRequest: `${self.settings.name}.js`
-                }, self.settings.fileName);
-
-                if (self.settings.sourceMap) {
-                    compilation.assets[`${self.settings.fileName}.map`] = {
-                        source() {
-                            return mapContent;
-                        },
-                        size() {
-                            return mapContent.length;
-                        }
-                    };
-                    compilation.applyPlugins('module-asset', {
-                        userRequest: `${self.settings.name}.js.map`
-                    }, `${self.settings.fileName}.map`);
-                }
-
-                callback();
-            });
-        });
-
         compiler.plugin('compilation', compilation => {
 
             compilation.plugin('html-webpack-plugin-before-html-generation', (htmlPluginData, callback) => {
-                Promise.all(concatPromise()).then(files => {
-                    const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2), {});
 
+                const injectToHtml = () => {
                     htmlPluginData.assets.webpackConcat = htmlPluginData.assets.webpackConcat || {};
 
-                    const relativePath = path.relative(htmlPluginData.outputName, self.settings.fileName)
+                    const relativePath = path.relative(htmlPluginData.outputName, self.finalFileName)
                         .split(path.sep).slice(1).join('/');
 
-                    htmlPluginData.assets.webpackConcat[self.settings.name] = self.getFileName(allFiles, relativePath);
+                    htmlPluginData.assets.webpackConcat[self.settings.name] = relativePath;
+                };
 
-                    callback(null, htmlPluginData);
+                return self.filesToConcatAbsolutePromise.then(filesToConcatAbsolute => {
+                    compilation.fileDependencies.push(...filesToConcatAbsolute);
+                    if (!dependenciesChanged(compilation, filesToConcatAbsolute)) {
+                        injectToHtml();
+                        return callback(null, htmlPluginData);
+                    }
+                    return self.getReadFilePromise(true).then(files => {
+                        self.resolveConcatAndUglify(compilation, files);
+                        injectToHtml();
+
+                        callback(null, htmlPluginData);
+                    });
+                }).catch(e => {
+                    console.error(e);
                 });
             });
         });
