@@ -27,21 +27,46 @@ npm install webpack-concat-plugin --save-dev
 const ConcatPlugin = require('webpack-concat-plugin');
 
 new ConcatPlugin({
-    // can set uglifyjs3 options, default to false
-    uglify: true,
-    // generate sourceMap, default to false
-    sourceMap: true,
-    // used in html-webpack-plugin, default to 'result'
-    name: 'flexible',
-    // default to [name].js
-    fileName: '/path/to/[name].[hash:8].bundle.js',
-    // support normal path, npm packages, or glob pattern: https://github.com/sindresorhus/globby
-    filesToConcat: ['./src/lib/flexible.js', './src/lib/makegrid.js', 'jquery', './src/dep/**', ['./test/**', '!./test/exclude/**']]
+    ...see options
 });
 
 ```
 
-### Inject to html (by hand)
+### options
+
+#### uglify [boolean | object] default: false
+if true the output file will be uglified
+
+or set [uglifyjs](https://github.com/mishoo/UglifyJS2) options to customize the output
+
+#### sourceMap [boolean] default: false
+if true, will output sourcemap
+
+#### name [string] default: "result"
+it's useful when you want to inject to html-webpack-plugin manully
+
+### publicPath [string|boolean] default: webpack's publicPath
+if set, will be used as the public path of the script tag.
+
+if set to false, will use relativePath.
+
+### outputPath [string]
+if set, will be used as the output directory of the file.
+
+### fileName [string] default: [name].js
+if set, will be used as the output fileName
+
+### filesToConcat [array] *required*
+supported path patterns:
+* normal path
+* npm packages
+* [glob](https://github.com/sindresorhus/globby)
+
+### injectType ["prepend"|"append"|"none"] default: "prepend"
+how to auto inject to html-webpack-plugin(only if html-webpack-plugin set inject option not to be false)
+
+### examples
+#### Inject to html by hand
 
 ```
 doctype html
@@ -53,4 +78,4 @@ doctype html
 ### TODO
 
 - [ ] add css support
-- [ ] auto inject to html
+- [x] auto inject to html

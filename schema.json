@@ -28,6 +28,15 @@
         },
         "attributes": {
             "type": "object"
+        },
+        "publicPath": {
+            "type": "string"
+        },
+        "outputPath": {
+            "anyOf": [
+                {"type": "boolean"},
+                {"type": "string"}
+            ]
         }
     }
 }
