@@ -32,7 +32,7 @@ new ConcatPlugin({
 
 ```
 
-### options
+### Options
 
 #### uglify [boolean | object] default: false
 if true the output file will be uglified
@@ -66,9 +66,9 @@ supported path patterns:
 how to auto inject to html-webpack-plugin(only if html-webpack-plugin set inject option not to be false)
 
 #### attributes [object]
-if set, will be used as the extra attributs of the script tag.
+if set, will be used as the extra attributes of the script tag.
 
-### examples
+### Examples
 #### Inject to html by hand
 
 ```
