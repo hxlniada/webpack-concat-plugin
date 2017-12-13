@@ -18,7 +18,8 @@ class ConcatPlugin {
             sourceMap: false,
             fileName: '[name].js',
             name: 'result',
-            injectType: 'prepend'
+            injectType: 'prepend',
+            outputPath: ''
         }, options);
 
         if (!options.filesToConcat || !options.filesToConcat.length) {
@@ -27,12 +28,22 @@ class ConcatPlugin {
 
         validateOptions(schema, options, 'webpackConcatPlugin');
 
+        options.outputPath = options.outputPath && this.ensureTrailingSlash(options.outputPath);
+
         this.settings = options;
 
         // used to determine if we should emit files during compiler emit event
         this.startTime = Date.now();
         this.prevTimestamps = {};
         this.needCreateNewFile = true;
+    }
+
+    ensureTrailingSlash(string) {
+        if (string.length && string.substr(-1, 1) !== '/') {
+            return `${string}/`;
+        }
+
+        return string;
     }
 
     getFileName(files, filePath = this.settings.fileName) {
@@ -171,7 +182,7 @@ class ConcatPlugin {
             if (this.settings.sourceMap) {
                 options.sourceMap = {
                     filename: `${this.finalFileName.split(path.sep).slice(-1).join(path.sep)}.map`,
-                    url: `${this.finalFileName}.map`
+                    url: `${this.settings.outputPath}${this.finalFileName}.map`
                 };
             }
 
@@ -202,7 +213,7 @@ class ConcatPlugin {
             }
         }
 
-        compilation.assets[this.finalFileName] = {
+        compilation.assets[`${this.settings.outputPath}${this.finalFileName}`] = {
             source() {
                 return content;
             },
@@ -212,11 +223,11 @@ class ConcatPlugin {
         };
 
         compilation.applyPlugins('module-asset', {
-            userRequest: `${this.settings.name}.js`
-        }, this.finalFileName);
+            userRequest: `${this.settings.outputPath}${this.settings.name}.js`
+        }, `${this.settings.outputPath}${this.finalFileName}`);
 
         if (this.settings.sourceMap) {
-            compilation.assets[`${this.finalFileName}.map`] = {
+            compilation.assets[`${this.settings.outputPath}${this.finalFileName}.map`] = {
                 source() {
                     return mapContent;
                 },
@@ -225,16 +236,16 @@ class ConcatPlugin {
                 }
             };
             compilation.applyPlugins('module-asset', {
-                userRequest: `${this.settings.name}.js.map`
-            }, `${this.finalFileName}.map`);
+                userRequest: `${this.settings.outputPath}${this.settings.name}.js.map`
+            }, `${this.settings.outputPath}${this.finalFileName}.map`);
         }
 
         this.needCreateNewFile = false;
     }
 
     apply(compiler) {
-        // the plugin order matters
-        let isAfterWebpackHtml = false;
+        // ensure only compile one time per emit
+        let compileLoopStarted = false;
 
         this.resolveReadFiles(compiler);
 
@@ -273,11 +284,23 @@ class ConcatPlugin {
             let assetPath;
 
             compilation.plugin('html-webpack-plugin-before-html-generation', (htmlPluginData, callback) => {
+                const getAssetPath = () => {
+                    if (typeof self.settings.publicPath === 'undefined') {
+                        if (typeof compilation.options.output.publicPath === 'undefined') {
+                            return path.relative(path.dirname(htmlPluginData.outputName), `${self.settings.outputPath}${self.finalFileName}`);
+                        }
+                        return `${self.ensureTrailingSlash(compilation.options.output.publicPath)}${self.settings.outputPath}${self.finalFileName}`;
+                    }
+                    if (self.settings.publicPath === false) {
+                        return path.relative(path.dirname(htmlPluginData.outputName), `${self.settings.outputPath}${self.finalFileName}`);
+                    }
+                    return `${self.ensureTrailingSlash(self.settings.publicPath)}${self.settings.outputPath}${self.finalFileName}`;
+                };
+
                 const injectToHtml = () => {
                     htmlPluginData.assets.webpackConcat = htmlPluginData.assets.webpackConcat || {};
 
-                    assetPath = path.relative(htmlPluginData.outputName, self.finalFileName)
-                        .split(path.sep).slice(1).join('/');
+                    assetPath = getAssetPath();
 
                     htmlPluginData.assets.webpackConcat[self.settings.name] = assetPath;
 
@@ -289,8 +312,8 @@ class ConcatPlugin {
                     }
                 };
 
-                if (!self.finalFileName || isAfterWebpackHtml) {
-                    isAfterWebpackHtml = true;
+                if (!self.finalFileName || !compileLoopStarted) {
+                    compileLoopStarted = true;
                     processCompiling(compilation, () => {
                         injectToHtml();
                         callback(null, htmlPluginData);
@@ -303,24 +326,31 @@ class ConcatPlugin {
             });
 
             compilation.plugin('html-webpack-plugin-alter-asset-tags', (htmlPluginData, callback) => {
-                const tags = htmlPluginData.head.concat(htmlPluginData.body);
-                const resultTag = tags.filter(tag =>
-                    tag.attributes.src === assetPath
-                );
-                if (resultTag && self.settings.attributes) {
-                    Object.assign(resultTag[0].attributes, self.settings.attributes);
+                if (self.settings.injectType !== 'none') {
+                    const tags = htmlPluginData.head.concat(htmlPluginData.body);
+                    const resultTag = tags.filter(tag =>
+                        tag.attributes.src === assetPath
+                    );
+                    if (resultTag && resultTag.length && self.settings.attributes) {
+                        Object.assign(resultTag[0].attributes, self.settings.attributes);
+                    }
                 }
 
                 callback(null, htmlPluginData);
             });
         });
         compiler.plugin('emit', (compilation, callback) => {
-            if (!isAfterWebpackHtml) {
+            if (!compileLoopStarted) {
+                compileLoopStarted = true;
                 processCompiling(compilation, callback);
             }
             else {
                 callback();
             }
+        });
+        compiler.plugin('after-emit', (compilation, callback) => {
+            compileLoopStarted = false;
+            callback();
         });
     }
 }
