@@ -1,4 +1,9 @@
 ## Change History
+### v2.4.0 (2017-12-13)
+* auto inject to html when html-wepback-plugin inject is not false
+* now support publicPath and outputPath
+* fix other bugs
+
 ### v2.3.0 (2017-12-12)
 * filesToConcat now support (glob)[https://github.com/sindresorhus/globby] syntax
 * add schema
