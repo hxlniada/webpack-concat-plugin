@@ -45,24 +45,24 @@ if true, will output sourcemap
 #### name [string] default: "result"
 it's useful when you want to inject to html-webpack-plugin manully
 
-### publicPath [string|boolean] default: webpack's publicPath
+#### publicPath [string|boolean] default: webpack's publicPath
 if set, will be used as the public path of the script tag.
 
 if set to false, will use relativePath.
 
-### outputPath [string]
+#### outputPath [string]
 if set, will be used as the output directory of the file.
 
-### fileName [string] default: [name].js
+#### fileName [string] default: [name].js
 if set, will be used as the output fileName
 
-### filesToConcat [array] *required*
+#### filesToConcat [array] *required*
 supported path patterns:
 * normal path
 * npm packages
 * [glob](https://github.com/sindresorhus/globby)
 
-### injectType ["prepend"|"append"|"none"] default: "prepend"
+#### injectType ["prepend"|"append"|"none"] default: "prepend"
 how to auto inject to html-webpack-plugin(only if html-webpack-plugin set inject option not to be false)
 
 ### examples
