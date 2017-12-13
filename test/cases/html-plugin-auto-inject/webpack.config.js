@@ -10,8 +10,10 @@ module.exports = {
             sourceMap: true,
             name: 'file',
             fileName: '[name].[hash].js',
-            injectType: 'none',
-            filesToConcat: ['../../fixtures/a.js', '../../fixtures/b.js']
+            filesToConcat: ['../../fixtures/a.js', '../../fixtures/b.js'],
+            attributes: {
+                async: true
+            }
         }),
     ],
 };

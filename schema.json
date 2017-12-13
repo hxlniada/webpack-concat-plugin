@@ -22,6 +22,21 @@
         },
         "filesToConcat": {
             "type": "array"
+        },
+        "injectType": {
+            "enum": ["prepend", "append", "none"]
+        },
+        "attributes": {
+            "type": "object"
+        },
+        "publicPath": {
+            "type": "string"
+        },
+        "outputPath": {
+            "anyOf": [
+                {"type": "boolean"},
+                {"type": "string"}
+            ]
         }
     }
 }
