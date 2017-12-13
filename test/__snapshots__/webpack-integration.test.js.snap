@@ -19,6 +19,24 @@ exports[`Webpack Integration Tests html-plugin 2`] = `
 "
 `;
 
+exports[`Webpack Integration Tests html-plugin-auto-inject 1`] = `
+"var x=1;x=10;var y=2;y=5;
+//# sourceMappingURL=file.0ff883d05f62ecabac00.js.map"
+`;
+
+exports[`Webpack Integration Tests html-plugin-auto-inject 2`] = `
+"<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset=\\"UTF-8\\">
+    <title>Webpack App</title>
+  </head>
+  <body>
+  <script type=\\"text/javascript\\" src=\\"file.0ff883d05f62ecabac00.js\\" async></script><script type=\\"text/javascript\\" src=\\"main.js\\"></script></body>
+</html>
+"
+`;
+
 exports[`Webpack Integration Tests simple 1`] = `
 "var x = 1;
 

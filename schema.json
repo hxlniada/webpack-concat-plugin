@@ -22,6 +22,12 @@
         },
         "filesToConcat": {
             "type": "array"
+        },
+        "injectType": {
+            "enum": ["prepend", "append", "none"]
+        },
+        "attributes": {
+            "type": "object"
         }
     }
 }
