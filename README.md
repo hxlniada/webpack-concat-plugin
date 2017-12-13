@@ -65,6 +65,9 @@ supported path patterns:
 #### injectType ["prepend"|"append"|"none"] default: "prepend"
 how to auto inject to html-webpack-plugin(only if html-webpack-plugin set inject option not to be false)
 
+#### attributes [object]
+if set, will be used as the extra attributs of the script tag.
+
 ### examples
 #### Inject to html by hand
 
