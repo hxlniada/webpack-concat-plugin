@@ -23,11 +23,21 @@ npm install webpack-concat-plugin --save-dev
 
 ### Usage
 
-```
+```javascript
 const ConcatPlugin = require('webpack-concat-plugin');
 
 new ConcatPlugin({
     ...see options
+    // examples
+    uglify: false,
+    sourceMap: false,
+    name: 'result',
+    outputPath: 'path/to/output/',
+    fileName: '[name].[hash:8].js',
+    filesToConcat: ['jquery', './src/lib/**', './dep/dep.js', ['./some/**', '!./some/excludes/**']],
+    attributes: {
+        async: true
+    }
 });
 
 ```
