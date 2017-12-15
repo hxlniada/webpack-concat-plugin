@@ -1,4 +1,7 @@
 ## Change History
+### v2.4.1 (2017-12-15)
+* fix cannot get source map sources correcly. thanks to [karlAlnebratt](https://github.com/karlAlnebratt)
+
 ### v2.4.0 (2017-12-13)
 * auto inject to html when html-wepback-plugin inject is not false
 * now support publicPath and outputPath

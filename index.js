@@ -145,7 +145,7 @@ class ConcatPlugin {
                                 }
                                 else {
                                     resolve({
-                                        [filePath]: data.toString()
+                                        [filePath.replace(compiler.options.context, '')]: data.toString()
                                     });
                                 }
                             });
@@ -165,12 +165,12 @@ class ConcatPlugin {
     }
 
     resolveConcatAndUglify(compilation, files) {
-        const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2), {});
+        const allFiles = files.reduce((file1, file2) =>  Object.assign(file1, file2), {});
         let content = '';
         let mapContent = '';
 
         this.finalFileName = this.getFileName(allFiles);
-        const filePath = this.settings.publicPath ? `${this.ensureTrailingSlash(this.settings.publicPath)}${this.settings.outputPath}${this.finalFileName}` : `${this.settings.outputPath}${this.finalFileName}`
+        const fileBaseName = path.basename(this.finalFileName);
 
         if (this.settings.uglify) {
             let options = {};
@@ -181,8 +181,7 @@ class ConcatPlugin {
 
             if (this.settings.sourceMap) {
                 options.sourceMap = {
-                    filename: `${this.finalFileName.split(path.sep).slice(-1).join(path.sep)}.map`,
-                    url: `${filePath}.map`
+                    url: `${fileBaseName}.map`
                 };
             }
 
@@ -208,7 +207,7 @@ class ConcatPlugin {
             content = concat.content.toString();
 
             if (this.settings.sourceMap) {
-                content += `//# sourceMappingURL=${filePath}.map`;
+                content += `//# sourceMappingURL=${fileBaseName}.map`;
                 mapContent = concat.sourceMap;
             }
         }
