@@ -1,4 +1,7 @@
 ## Change History
+### v2.4.2 (2017-12-15)
+* upgrade schema-utils to 0.4.3 to show schema errors with a better syntax
+
 ### v2.4.1 (2017-12-15)
 * fix cannot get source map sources correcly. thanks to [karlAlnebratt](https://github.com/karlAlnebratt)
 
