@@ -105,15 +105,16 @@ class ConcatPlugin {
         const relativePathArrayPromise = this.getRelativePathAsync(compiler.options.context);
 
         this.filesToConcatAbsolutePromise = new Promise((resolve, reject) => {
-            compiler.plugin('after-resolvers', compiler => {
+            compiler.resolverFactory.plugin('resolver normal', resolver => {
                 resolve(relativePathArrayPromise
                     .then(relativeFilePathArray =>
                         Promise.all(relativeFilePathArray.map(relativeFilePath =>
                             new Promise((resolve, reject) =>
-                                compiler.resolvers.normal.resolve(
+                                resolver.resolve(
                                     {},
                                     compiler.options.context,
                                     relativeFilePath,
+                                    {},
                                     (err, filePath) => {
                                         if (err) {
                                             reject(err);
@@ -221,7 +222,7 @@ class ConcatPlugin {
             }
         };
 
-        compilation.applyPlugins('module-asset', {
+        compilation.hooks.moduleAsset.call({
             userRequest: `${this.settings.outputPath}${this.settings.name}.js`
         }, `${this.settings.outputPath}${this.finalFileName}`);
 
@@ -234,7 +235,7 @@ class ConcatPlugin {
                     return mapContent.length;
                 }
             };
-            compilation.applyPlugins('module-asset', {
+            compilation.hooks.moduleAsset.call({
                 userRequest: `${this.settings.outputPath}${this.settings.name}.js.map`
             }, `${this.settings.outputPath}${this.finalFileName}.map`);
         }
@@ -265,7 +266,9 @@ class ConcatPlugin {
 
         const processCompiling = (compilation, callback) => {
             self.filesToConcatAbsolutePromise.then(filesToConcatAbsolute => {
-                compilation.fileDependencies.push(...filesToConcatAbsolute);
+                for (const f of filesToConcatAbsolute) {
+                    compilation.fileDependencies.add(f);
+                }
                 if (!dependenciesChanged(compilation, filesToConcatAbsolute)) {
                     return callback();
                 }
@@ -279,10 +282,10 @@ class ConcatPlugin {
             });
         };
 
-        compiler.plugin('compilation', compilation => {
+        compiler.hooks.compilation.tap('webpackConcatPlugin', compilation => {
             let assetPath;
 
-            compilation.plugin('html-webpack-plugin-before-html-generation', (htmlPluginData, callback) => {
+            compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration.tapAsync('webpackConcatPlugin', (htmlPluginData, callback) => {
                 const getAssetPath = () => {
                     if (typeof self.settings.publicPath === 'undefined') {
                         if (typeof compilation.options.output.publicPath === 'undefined') {
@@ -324,7 +327,7 @@ class ConcatPlugin {
                 }
             });
 
-            compilation.plugin('html-webpack-plugin-alter-asset-tags', (htmlPluginData, callback) => {
+            compilation.hooks.htmlWebpackPluginAlterAssetTags.tap('webpackConcatPlugin', htmlPluginData => {
                 if (self.settings.injectType !== 'none') {
                     const tags = htmlPluginData.head.concat(htmlPluginData.body);
                     const resultTag = tags.filter(tag =>
@@ -334,11 +337,10 @@ class ConcatPlugin {
                         Object.assign(resultTag[0].attributes, self.settings.attributes);
                     }
                 }
-
-                callback(null, htmlPluginData);
             });
         });
-        compiler.plugin('emit', (compilation, callback) => {
+
+        compiler.hooks.emit.tapAsync('webpackConcatPlugin', (compilation, callback) => {
             if (!compileLoopStarted) {
                 compileLoopStarted = true;
                 processCompiling(compilation, callback);
@@ -347,9 +349,8 @@ class ConcatPlugin {
                 callback();
             }
         });
-        compiler.plugin('after-emit', (compilation, callback) => {
+        compiler.hooks.afterEmit.tap('webpackConcatPlugin', compilation => {
             compileLoopStarted = false;
-            callback();
         });
     }
 }
