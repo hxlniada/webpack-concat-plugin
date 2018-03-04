@@ -285,7 +285,8 @@ class ConcatPlugin {
         compiler.hooks.compilation.tap('webpackConcatPlugin', compilation => {
             let assetPath;
 
-            compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration.tapAsync('webpackConcatPlugin', (htmlPluginData, callback) => {
+            compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration
+            && compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration.tapAsync('webpackConcatPlugin', (htmlPluginData, callback) => {
                 const getAssetPath = () => {
                     if (typeof self.settings.publicPath === 'undefined') {
                         if (typeof compilation.options.output.publicPath === 'undefined') {
@@ -327,7 +328,8 @@ class ConcatPlugin {
                 }
             });
 
-            compilation.hooks.htmlWebpackPluginAlterAssetTags.tap('webpackConcatPlugin', htmlPluginData => {
+            compilation.hooks.htmlWebpackPluginAlterAssetTags
+            && compilation.hooks.htmlWebpackPluginAlterAssetTags.tap('webpackConcatPlugin', htmlPluginData => {
                 if (self.settings.injectType !== 'none') {
                     const tags = htmlPluginData.head.concat(htmlPluginData.body);
                     const resultTag = tags.filter(tag =>

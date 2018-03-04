@@ -41,5 +41,8 @@
   },
   "bugs": {
     "url": "https://github.com/hxlniada/webpack-concat-plugin/issues"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }
