@@ -15,6 +15,10 @@ Webpack is really powerful. However, when I want to concat the static files and 
 ```
 npm install webpack-concat-plugin --save-dev
 ```
+for webpack >= 4.0
+```
+npm install webpack-concat-plugin@3.0.0-beta.0 --save-dev
+```
 
 ### Features
 
