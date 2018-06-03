@@ -7,6 +7,7 @@ const Concat = require('concat-with-sourcemaps');
 const UglifyJS = require('uglify-es');
 const createHash = require('crypto').createHash;
 const path = require('path');
+const upath = require('upath');
 const globby = require('globby');
 const validateOptions = require('schema-utils');
 const schema = require('./schema.json');
@@ -146,7 +147,7 @@ class ConcatPlugin {
                                 }
                                 else {
                                     resolve({
-                                        ['webpack:///' + path.relative(compiler.options.context, filePath)]: data.toString()
+                                        ['webpack:///' + upath.relative(compiler.options.context, filePath)]: data.toString()
                                     });
                                 }
                             });
@@ -182,7 +183,8 @@ class ConcatPlugin {
 
             if (this.settings.sourceMap) {
                 options.sourceMap = {
-                    url: `${fileBaseName}.map`
+                    url: `${fileBaseName}.map`,
+                    includeSources: true
                 };
             }
 
