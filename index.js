@@ -146,7 +146,7 @@ class ConcatPlugin {
                                 }
                                 else {
                                     resolve({
-                                        [filePath.replace(compiler.options.context, '')]: data.toString()
+                                        ['webpack:///' + path.relative(compiler.options.context, filePath)]: data.toString()
                                     });
                                 }
                             });
@@ -267,7 +267,7 @@ class ConcatPlugin {
         const processCompiling = (compilation, callback) => {
             self.filesToConcatAbsolutePromise.then(filesToConcatAbsolute => {
                 for (const f of filesToConcatAbsolute) {
-                    compilation.fileDependencies.add(f);
+                    compilation.fileDependencies.add(path.relative(compiler.options.context, f));
                 }
                 if (!dependenciesChanged(compilation, filesToConcatAbsolute)) {
                     return callback();
