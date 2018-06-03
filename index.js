@@ -56,30 +56,42 @@ class ConcatPlugin {
         const hashRegExp = /\[hash(?:(?::)([\d]+))?\]/;
 
         if (this.settings.useHash || hashRegExp.test(filePath)) {
-            const fileMd5 = this.md5File(files);
+            const fileHash = this.hashFile(files);
 
             if (!hashRegExp.test(filePath)) {
                 filePath = filePath.replace(/\.js$/, '.[hash].js');
             }
 
             const regResult = hashRegExp.exec(filePath);
-            const hashLength = regResult[1] ? Number(regResult[1]) : 20;
+            const hashLength = regResult[1] ? Number(regResult[1]) : fileHash.length;
 
-            filePath = filePath.replace(hashRegExp, fileMd5.slice(0, hashLength));
+            filePath = filePath.replace(hashRegExp, fileHash.slice(0, hashLength));
         }
         return filePath.replace(fileRegExp, this.settings.name);
     }
 
-    md5File(files) {
-        if (this.fileMd5 && !this.needCreateNewFile) {
-            return this.fileMd5;
+    hashFile(files) {
+        if (this.fileHash && !this.needCreateNewFile) {
+            return this.fileHash;
         }
         const content = Object.keys(files)
             .reduce((fileContent, fileName) => (fileContent + files[fileName]), '');
 
-        this.fileMd5 = createHash('md5').update(content).digest('hex');
+        const { hashFunction = 'md5', hashDigest = 'hex' } = this.settings;
+        this.fileHash = createHash(hashFunction).update(content).digest(hashDigest);
+        if (hashDigest === 'base64') {
+          // these are not safe url characters.
+          this.fileHash = this.fileHash.replace(/[/+=]/g, (c) => {
+            switch (c) {
+              case '/': return '_';
+              case '+': return '-';
+              case '=': return '';
+              default: return c;
+            }
+          });
+        }
 
-        return this.fileMd5;
+        return this.fileHash;
     }
 
     getRelativePathAsync(context) {
