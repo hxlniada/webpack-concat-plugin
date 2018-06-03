@@ -7,7 +7,7 @@ module.exports = {
         new ConcatPlugin({
             sourceMap: true,
             name: 'file',
-            fileName: '[name].[hash].js',
+            fileName: '[name].[hash:20].js',
             filesToConcat: ['../../fixtures/a.js', '../../fixtures/b.js']
         })
     ]
