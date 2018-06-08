@@ -29,7 +29,17 @@ describe('ConcatPlugin', () => {
         const plugin = new ConcatPlugin({
             filesToConcat: ['./test/fixtures/a.js']
         });
-        expect(plugin.getFileName('aa', '[name].[hash].js')).toEqual('result.4124bc0a9335c27f086f.js');
+        expect(plugin.getFileName('aa', '[name].[hash].js')).toEqual('result.4124bc0a9335c27f086f24ba207a4912.js');
+        expect(plugin.getFileName('aa', '[name].[hash:20].js')).toEqual('result.4124bc0a9335c27f086f.js');
         expect(plugin.getFileName('aa', '[name].[hash:8].js')).toEqual('result.4124bc0a.js');
+    });
+
+    it('should use specified hash', () => {
+        const plugin = new ConcatPlugin({
+            filesToConcat: ['./test/fixtures/a.js'],
+            hashFunction: 'sha256',
+            hashDigest: 'base64'
+        });
+        expect(plugin.getFileName('aa', '[name].[hash].js')).toEqual('result.lhtt0-3jy47LqsvWjeBAzXjrLtWIkTDM60xJJo6k1QY.js');
     });
 });
