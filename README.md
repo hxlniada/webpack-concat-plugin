@@ -17,7 +17,7 @@ npm install webpack-concat-plugin --save-dev
 ```
 for webpack >= 4.0
 ```
-npm install webpack-concat-plugin@3.0.0-beta.0 --save-dev
+npm install webpack-concat-plugin@3.0.0 --save-dev
 ```
 
 ### Features
