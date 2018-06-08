@@ -15,7 +15,8 @@
     "concat-with-sourcemaps": "^1.0.5",
     "globby": "^8.0.1",
     "schema-utils": "^0.4.5",
-    "uglify-es": "^3.3.9"
+    "uglify-es": "^3.3.9",
+    "upath": "^1.1.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
