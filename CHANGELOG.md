@@ -1,4 +1,9 @@
 ## Change History
+### v3.0.0 (2018-06-08)
+* support webpack4.0.0
+* Better hashing. thanks to [ddumont](https://github.com/ddumont)
+* Use same location as webpack's other sourcmaps. thanks to [ddumont](https://github.com/ddumont)
+
 ### v2.4.2 (2017-12-15)
 * upgrade schema-utils to 0.4.3 to show schema errors with a better syntax
 
