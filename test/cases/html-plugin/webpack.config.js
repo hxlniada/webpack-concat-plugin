@@ -4,7 +4,17 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 module.exports = {
     entry: './index.js',
     plugins: [
-        new HtmlWebpackPlugin({ template: './index.ejs' }),
+        new HtmlWebpackPlugin({
+            template: './index.ejs',
+            minify: {
+                collapseWhitespace: false,
+                removeComments: true,
+                removeRedundantAttributes: false,
+                removeScriptTypeAttributes: false,
+                removeStyleLinkTypeAttributes: false,
+                useShortDoctype: false
+            }
+        }),
         new ConcatPlugin({
             uglify: true,
             sourceMap: true,
