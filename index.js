@@ -9,6 +9,7 @@ const createHash = require('crypto').createHash;
 const path = require('path');
 const globby = require('globby');
 const validateOptions = require('schema-utils');
+const htmlWebpackPlugin = require('html-webpack-plugin');
 const schema = require('./schema.json');
 
 class ConcatPlugin {
@@ -285,45 +286,46 @@ class ConcatPlugin {
         compiler.hooks.compilation.tap('webpackConcatPlugin', compilation => {
             let assetPath;
 
-            compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration
-            && compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration.tapAsync('webpackConcatPlugin', (htmlPluginData, callback) => {
-                const getAssetPath = () => {
-                    if (typeof self.settings.publicPath === 'undefined') {
-                        if (typeof compilation.options.output.publicPath === 'undefined') {
-                            return path.relative(path.dirname(htmlPluginData.outputName), `${self.settings.outputPath}${self.finalFileName}`);
-                        }
-                        return `${self.ensureTrailingSlash(compilation.options.output.publicPath)}${self.settings.outputPath}${self.finalFileName}`;
-                    }
-                    if (self.settings.publicPath === false) {
+            const getAssetPath = (htmlPluginData) => {
+                if (typeof self.settings.publicPath === 'undefined') {
+                    if (typeof compilation.options.output.publicPath === 'undefined') {
                         return path.relative(path.dirname(htmlPluginData.outputName), `${self.settings.outputPath}${self.finalFileName}`);
                     }
-                    return `${self.ensureTrailingSlash(self.settings.publicPath)}${self.settings.outputPath}${self.finalFileName}`;
-                };
+                    return `${self.ensureTrailingSlash(compilation.options.output.publicPath)}${self.settings.outputPath}${self.finalFileName}`;
+                }
+                if (self.settings.publicPath === false) {
+                    return path.relative(path.dirname(htmlPluginData.outputName), `${self.settings.outputPath}${self.finalFileName}`);
+                }
+                return `${self.ensureTrailingSlash(self.settings.publicPath)}${self.settings.outputPath}${self.finalFileName}`;
+            };
 
-                const injectToHtml = () => {
-                    htmlPluginData.assets.webpackConcat = htmlPluginData.assets.webpackConcat || {};
+            const injectToHtml = (htmlPluginData) => {
+                htmlPluginData.assets.webpackConcat = htmlPluginData.assets.webpackConcat || {};
 
-                    assetPath = getAssetPath();
+                assetPath = getAssetPath(htmlPluginData);
 
-                    htmlPluginData.assets.webpackConcat[self.settings.name] = assetPath;
+                htmlPluginData.assets.webpackConcat[self.settings.name] = assetPath;
 
-                    if (self.settings.injectType === 'prepend') {
-                        htmlPluginData.assets.js.unshift(assetPath);
-                    }
-                    else if (self.settings.injectType === 'append') {
-                        htmlPluginData.assets.js.push(assetPath);
-                    }
-                };
+                if (self.settings.injectType === 'prepend') {
+                    htmlPluginData.assets.js.unshift(assetPath);
+                }
+                else if (self.settings.injectType === 'append') {
+                    htmlPluginData.assets.js.push(assetPath);
+                }
+            };
 
+            // previous version of htmlWebpackPlugin left for backward compatibility
+            compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration
+            && compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration.tapAsync('webpackConcatPlugin', (htmlPluginData, callback) => {
                 if (!self.finalFileName || !compileLoopStarted) {
                     compileLoopStarted = true;
                     processCompiling(compilation, () => {
-                        injectToHtml();
+                        injectToHtml(htmlPluginData);
                         callback(null, htmlPluginData);
                     });
                 }
                 else {
-                    injectToHtml();
+                    injectToHtml(htmlPluginData);
                     callback(null, htmlPluginData);
                 }
             });
@@ -340,6 +342,47 @@ class ConcatPlugin {
                     }
                 }
             });
+
+            // htmlWebpackPlugin @Next
+            if (htmlWebpackPlugin.getHooks) {
+                const hooks = htmlWebpackPlugin.getHooks(compilation);
+
+                hooks
+                && hooks.beforeAssetTagGeneration
+                && hooks.beforeAssetTagGeneration.tapAsync('webpackConcatPlugin', (htmlPluginData, callback) => {
+                    if (!self.finalFileName || !compileLoopStarted) {
+                        compileLoopStarted = true;
+                        processCompiling(compilation, () => {
+                            injectToHtml(htmlPluginData);
+                            callback(null, htmlPluginData);
+                        });
+                    }
+                    else {
+                        injectToHtml(htmlPluginData);
+                        callback(null, htmlPluginData);
+                    }
+                });
+
+                hooks
+                && hooks.alterAssetTags
+                && hooks.alterAssetTags.tap('webpackConcatPlugin', htmlPluginData => {
+                    // test leaving off type not sure why this is happening
+                    // html-webpack minify option will remove the attribute if true
+                    htmlPluginData.assetTags.scripts.forEach((tag) => {
+                        tag.attributes = {type: 'text/javascript', ...tag.attributes};
+                    });
+
+                    if (self.settings.injectType !== 'none') {
+                        const tags = htmlPluginData.assetTags.scripts;
+                        const resultTag = tags.filter(tag => {
+                            return tag.attributes.src === assetPath;
+                        });
+                        if (resultTag && resultTag.length && self.settings.attributes) {
+                            Object.assign(resultTag[0].attributes, self.settings.attributes);
+                        }
+                    }
+                });
+            }
         });
 
         compiler.hooks.emit.tapAsync('webpackConcatPlugin', (compilation, callback) => {
