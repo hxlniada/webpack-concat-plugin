@@ -57,7 +57,7 @@ or set [uglifyjs](https://github.com/mishoo/UglifyJS2) options to customize the 
 if true, will output sourcemap
 
 #### name [string] default: "result"
-it's useful when you want to inject to html-webpack-plugin manully
+it's useful when you want to inject to html-webpack-plugin manually
 
 #### publicPath [string|boolean] default: webpack's publicPath
 if set, will be used as the public path of the script tag.
