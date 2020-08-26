@@ -118,7 +118,7 @@ class ConcatPlugin {
         const relativePathArrayPromise = this.getRelativePathAsync(compiler.options.context);
 
         this.filesToConcatAbsolutePromise = new Promise((resolve, reject) => {
-            compiler.resolverFactory.plugin('resolver normal', resolver => {
+            compiler.resolverFactory.hooks.resolver.for('normal').tap('WebpackConcatPlugin', resolver => {
                 resolve(relativePathArrayPromise
                     .then(relativeFilePathArray =>
                         Promise.all(relativeFilePathArray.map(relativeFilePath =>
