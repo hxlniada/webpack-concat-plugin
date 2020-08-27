@@ -1,9 +1,10 @@
 {
-  "name": "webpack-concat-plugin",
-  "version": "3.0.0",
+  "name": "@penggy/webpack-concat-plugin",
+  "version": "3.0.1",
   "author": "huangxueliang",
   "description": "Webpack file concatenation.",
   "license": "ISC",
+  "private": false,
   "main": "./release.js",
   "scripts": {
     "test": "jest",
