@@ -10,11 +10,13 @@
 
 Webpack is really powerful. However, when I want to concat the static files and inject into html without webpack JSONP code wrapper, it seems impossible to do that without other tool's help.
 
+<!--
 ### Install
 
 ```
 npm install @mcler/webpack-concat-plugin --save-dev
 ```
+-->
 
 ### Features
 
