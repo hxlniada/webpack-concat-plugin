@@ -1,10 +1,10 @@
 # webpack-concat-plugin
 
-[![Build Status](https://img.shields.io/travis/hxlniada/webpack-concat-plugin.svg)](https://travis-ci.org/hxlniada/webpack-concat-plugin)
+<!-- [![Build Status](https://img.shields.io/travis/hxlniada/webpack-concat-plugin.svg)](https://travis-ci.org/hxlniada/webpack-concat-plugin)
 [![npm package](https://img.shields.io/npm/v/webpack-concat-plugin.svg)](https://www.npmjs.org/package/webpack-concat-plugin)
-[![npm downloads](http://img.shields.io/npm/dm/webpack-concat-plugin.svg)](https://www.npmjs.org/package/webpack-concat-plugin)
+[![npm downloads](http://img.shields.io/npm/dm/webpack-concat-plugin.svg)](https://www.npmjs.org/package/webpack-concat-plugin) -->
 
-> A plugin to help webpack concat js and inject into html
+> A plugin to help webpack concat js and inject into html. Forked from [hxlniada's plugin](https://github.com/hxlniada/webpack-concat-plugin)
 
 ### Why
 
@@ -13,11 +13,7 @@ Webpack is really powerful. However, when I want to concat the static files and 
 ### Install
 
 ```
-npm install webpack-concat-plugin --save-dev
-```
-for webpack >= 4.0
-```
-npm install webpack-concat-plugin@3.0.0 --save-dev
+npm install @mcler/webpack-concat-plugin --save-dev
 ```
 
 ### Features
@@ -33,8 +29,6 @@ const ConcatPlugin = require('webpack-concat-plugin');
 new ConcatPlugin({
     ...see options
     // examples
-    uglify: false,
-    sourceMap: false,
     name: 'result',
     outputPath: 'path/to/output/',
     fileName: '[name].[hash:8].js',
@@ -95,4 +89,5 @@ doctype html
 ### TODO
 
 - [ ] add css support
-- [x] auto inject to html
+- [ ] update babel
+- [ ] update jest and tests

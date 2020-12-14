@@ -1,4 +1,12 @@
 ## Change History
+### v4.0.0 (2020-12-08)
+* **Breaking change** removed `uglify` and `sourceMap` from plugin configuration config
+* remove `concat-with-sourcemaps` from dependencies
+* support `webpack@5.1.0`
+* support `html-webpack-plugin@5.0.0-alpha.15`
+* upgrade `schema-utils` to 3.0.0
+* `html-webpack-plugin`, `webpack` moved to `peerDependencies`
+
 ### v3.0.0 (2018-06-08)
 * support webpack4.0.0
 * Better hashing. thanks to [ddumont](https://github.com/ddumont)
