@@ -44,14 +44,6 @@ new ConcatPlugin({
 
 ### Options
 
-#### uglify [boolean | object] default: false
-if true the output file will be uglified
-
-or set [uglifyjs](https://github.com/mishoo/UglifyJS2) options to customize the output
-
-#### sourceMap [boolean] default: false
-if true, will output sourcemap
-
 #### name [string] default: "result"
 it's useful when you want to inject to html-webpack-plugin manully
 
