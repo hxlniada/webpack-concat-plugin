@@ -14,7 +14,9 @@ Webpack is really powerful. However, when I want to concat the static files and 
 ### Install
 
 ```
-npm install @mcler/webpack-concat-plugin --save-dev
+npm install github:mcler/webpack-concat-plugin --save-dev
+
+yarn add github:mcler/webpack-concat-plugin --dev
 ```
 -->
 
@@ -26,7 +28,7 @@ npm install @mcler/webpack-concat-plugin --save-dev
 ### Usage
 
 ```javascript
-const ConcatPlugin = require('webpack-concat-plugin');
+const ConcatPlugin = require('@mcler/webpack-concat-plugin');
 
 new ConcatPlugin({
     ...see options

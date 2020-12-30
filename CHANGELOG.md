@@ -1,4 +1,8 @@
 ## Change History
+
+### v4.0.1 (2020-12-30)
+* fixed source map generation
+
 ### v4.0.0 (2020-12-08)
 * **Breaking change** removed `uglify` and `sourceMap` from plugin configuration config
 * remove `concat-with-sourcemaps` from dependencies

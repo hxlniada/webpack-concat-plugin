@@ -6,7 +6,7 @@
  */
 const fs = require('fs');
 const Compilation = require('webpack').Compilation;
-const { ConcatSource } = require('webpack-sources');
+const { ConcatSource, OriginalSource } = require('webpack-sources');
 const createHash = require('crypto').createHash;
 const path = require('path');
 const upath = require('upath');
@@ -150,9 +150,9 @@ class ConcatPlugin {
                                     compiler.options.context,
                                     relativeFilePath,
                                     {},
-                                    (err, filePath) => {
-                                        if (err) {
-                                            _reject(err);
+                                    (error, filePath) => {
+                                        if (error) {
+                                            _reject(error);
                                         } else {
                                             _resolve(filePath);
                                         }
@@ -160,8 +160,8 @@ class ConcatPlugin {
                                 )
                             )
                         ))
-                    ).catch(e => {
-                        console.error(e);
+                    ).catch(error => {
+                        console.error(error);
                     })
                 );
             });
@@ -207,8 +207,8 @@ class ConcatPlugin {
 
         this.finalFileName = this.getFileName(allFiles);
         const concatSource = new ConcatSource();
-        Object.values(allFiles).forEach(file => {
-            concatSource.add(file);
+        Object.entries(allFiles).forEach(([name, file]) => {
+            concatSource.add(new OriginalSource(file, name));
         });
         compilation.emitAsset(this.finalFileName, concatSource);
 
