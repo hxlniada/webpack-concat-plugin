@@ -4,7 +4,7 @@
 * fixed source map generation
 
 ### v4.0.0 (2020-12-08)
-* **Breaking change** removed `uglify` and `sourceMap` from plugin configuration config
+* **Breaking change** removed `uglify` and `sourceMap` from plugin configuration
 * remove `concat-with-sourcemaps` from dependencies
 * support `webpack@5.1.0`
 * support `html-webpack-plugin@5.0.0-alpha.15`
