@@ -6,12 +6,11 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({ template: './index.ejs' }),
         new ConcatPlugin({
-            uglify: true,
-            sourceMap: true,
             name: 'file',
             fileName: '[name].[hash:20].js',
             injectType: 'none',
             filesToConcat: ['../../fixtures/a.js', '../../fixtures/b.js']
         }),
     ],
+    devtool: 'source-map',
 };

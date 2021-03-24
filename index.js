@@ -31,10 +31,10 @@ class ConcatPlugin {
         }, options);
 
         if (!options.filesToConcat || !options.filesToConcat.length) {
-            throw new Error('webpackConcatPlugin: option filesToConcat is required and should not be empty');
+            throw new Error(`${PLUGIN_NAME}: option filesToConcat is required and should not be empty`);
         }
 
-        validateOptions(schema, options, 'webpackConcatPlugin');
+        validateOptions(schema, options, PLUGIN_NAME);
 
         options.outputPath = options.outputPath && this.ensureTrailingSlash(options.outputPath);
 
@@ -125,8 +125,8 @@ class ConcatPlugin {
             return f;
         }))
             .then(rawResult => rawResult.reduce((target, resource) => target.concat(resource), []))
-            .catch(e => {
-                console.error(e);
+            .catch(error => {
+                console.error(error);
             });
     }
 
@@ -185,8 +185,8 @@ class ConcatPlugin {
                             });
                         })
                     ))
-                ).catch(e => {
-                    console.error(e);
+                ).catch(error => {
+                    console.error(error);
                 });
         };
 
@@ -260,12 +260,12 @@ class ConcatPlugin {
 
                     callback();
                 });
-            }).catch(e => {
-                console.error(e);
+            }).catch(error => {
+                console.error(error);
             });
         };
 
-        compiler.hooks.compilation.tap('webpackConcatPlugin', compilation => {
+        compiler.hooks.compilation.tap(PLUGIN_NAME, compilation => {
             let assetPath;
             let hook = compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration;
 
