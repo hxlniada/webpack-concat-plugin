@@ -1,14 +1,15 @@
 {
   "name": "@mcler/webpack-concat-plugin",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "author": "mcler",
   "description": "Webpack file concatenation.",
   "license": "ISC",
   "main": "./release.js",
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "npm run test:clean; jest",
+    "test:watch": "npm run test:clean; jest --watch",
     "test:coverage": "jest --collectCoverageFrom='src/**/*.js' --coverage",
+    "test:clean": "rm -rf test/__snapshots__; rm -rf test/js",
     "build": "babel index.js --out-file release.js"
   },
   "dependencies": {
@@ -31,7 +32,7 @@
     "webpack-sources": "^2.2.0"
   },
   "engines": {
-    "node": ">= 10.13.0"
+    "node": ">= 14"
   },
   "homepage": "https://github.com/hxlniada/webpack-concat-plugin",
   "repository": {

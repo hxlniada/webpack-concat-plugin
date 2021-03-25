@@ -14,6 +14,8 @@ const globby = require('globby');
 const validateOptions = require('schema-utils').validate;
 const schema = require('./schema.json');
 
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
 const PLUGIN_NAME = 'webpackConcatPlugin';
 
 /** @typedef {import("webpack").Compiler} Compiler */
@@ -267,15 +269,15 @@ class ConcatPlugin {
 
         compiler.hooks.compilation.tap(PLUGIN_NAME, compilation => {
             let assetPath;
-            let hook = compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration;
+            let hookBeforeAssetTagGeneration = HtmlWebpackPlugin.getHooks(compilation).beforeAssetTagGeneration;
 
-            hook && hook.tapAsync('webpackConcatPlugin', (htmlPluginData, callback) => {
+            hookBeforeAssetTagGeneration && hookBeforeAssetTagGeneration.tapAsync(PLUGIN_NAME, (htmlPluginData, callback) => {
                 const getAssetPath = () => {
                     if (typeof self.settings.publicPath === 'undefined') {
-                        if (typeof compilation.options.output.publicPath === 'undefined') {
+                        if (typeof htmlPluginData.assets.publicPath === 'undefined') {
                             return path.relative(path.dirname(htmlPluginData.outputName), `${self.settings.outputPath}${self.finalFileName}`);
                         }
-                        return `${self.ensureTrailingSlash(compilation.options.output.publicPath)}${self.settings.outputPath}${self.finalFileName}`;
+                        return `${self.ensureTrailingSlash(htmlPluginData.assets.publicPath)}${self.settings.outputPath}${self.finalFileName}`;
                     }
                     if (self.settings.publicPath === false) {
                         return path.relative(path.dirname(htmlPluginData.outputName), `${self.settings.outputPath}${self.finalFileName}`);
@@ -309,15 +311,18 @@ class ConcatPlugin {
                 }
             });
 
-            compilation.hooks.htmlWebpackPluginAlterAssetTags
-                && compilation.hooks.htmlWebpackPluginAlterAssetTags.tap('webpackConcatPlugin', htmlPluginData => {
+            const hookAlterAssetTags = HtmlWebpackPlugin.getHooks(compilation).alterAssetTags
+
+            hookAlterAssetTags && hookAlterAssetTags.tapAsync(PLUGIN_NAME, (htmlPluginData, callback) => {
                     if (self.settings.injectType !== 'none') {
-                        const tags = htmlPluginData.head.concat(htmlPluginData.body);
-                        const resultTag = tags.filter(tag => tag.attributes.src === assetPath);
-                        if (resultTag && resultTag.length && self.settings.attributes) {
-                            Object.assign(resultTag[0].attributes, self.settings.attributes);
+                        const tags = htmlPluginData.assetTags.scripts.filter(tag => tag.attributes.src === assetPath);
+                        if (tags && tags.length && self.settings.attributes) {
+                            tags.forEach((tag) => {
+                                Object.assign(tag.attributes, self.settings.attributes);
+                            });
                         }
                     }
+                    callback(null, htmlPluginData);
                 });
         });
 

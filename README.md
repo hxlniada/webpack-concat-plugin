@@ -86,4 +86,4 @@ doctype html
 
 - [ ] add css support
 - [ ] update babel
-- [ ] update jest and tests
+- [ ] update jest

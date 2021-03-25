@@ -4,7 +4,11 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 module.exports = {
     entry: './index.js',
     plugins: [
-        new HtmlWebpackPlugin({ template: './index.ejs' }),
+        new HtmlWebpackPlugin({
+            template: './index.ejs',
+            minify: false,
+            scriptLoading: 'blocking',
+        }),
         new ConcatPlugin({
             name: 'file',
             fileName: '[name].[hash:20].js',

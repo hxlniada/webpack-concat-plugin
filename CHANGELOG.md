@@ -1,5 +1,9 @@
 ## Change History
 
+### v4.1.0 (2021-03-26)
+* full support for `html-webpack-plugin@5`
+* fully passing tests
+
 ### v4.0.1 (2020-12-30)
 * fixed source map generation
 
