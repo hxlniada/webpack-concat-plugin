@@ -1,5 +1,8 @@
 ## Change History
 
+### v4.1.1 (2021-03-29)
+* fixed resolver error
+
 ### v4.1.0 (2021-03-26)
 * full support for `html-webpack-plugin@5`
 * fully passing tests

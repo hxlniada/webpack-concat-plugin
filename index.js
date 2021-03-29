@@ -46,6 +46,7 @@ class ConcatPlugin {
         this.startTime = Date.now();
         this.prevTimestamps = {};
         this.needCreateNewFile = true;
+        this.resolveCache = {};
     }
 
     /**
@@ -154,8 +155,9 @@ class ConcatPlugin {
                                     {},
                                     (error, filePath) => {
                                         if (error) {
-                                            _reject(error);
+                                            if (!this.resolveCache[relativeFilePath]) _reject(error)
                                         } else {
+                                            this.resolveCache[relativeFilePath] = true;
                                             _resolve(filePath);
                                         }
                                     }
@@ -251,8 +253,8 @@ class ConcatPlugin {
 
         const processCompiling = (compilation, callback) => {
             self.filesToConcatAbsolutePromise.then(filesToConcatAbsolute => {
-                for (const f of filesToConcatAbsolute) {
-                    compilation.fileDependencies.add(path.relative(compiler.options.context, f));
+                for (const file of filesToConcatAbsolute) {
+                    compilation.fileDependencies.add(path.relative(compiler.options.context, file));
                 }
                 if (!dependenciesChanged(compilation, filesToConcatAbsolute)) {
                     return callback();
