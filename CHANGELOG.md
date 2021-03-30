@@ -1,5 +1,8 @@
 ## Change History
 
+### v4.1.2 (2021-03-30)
+* update dependencies, migrate to Babel 7
+
 ### v4.1.1 (2021-03-29)
 * fixed resolver error
 

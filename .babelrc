@@ -1,36 +1,22 @@
 {
   "presets": [
     [
-      "env",
+      "@babel/preset-env",
       {
-        "useBuiltIns": true,
+        "corejs": "3",
         "targets": {
-          "node": "10.13.0"
+          "node": "14.16.0"
         },
-        "exclude": [
-          "transform-async-to-generator",
-          "transform-regenerator"
-        ]
-      }
-    ]
-  ],
-  "plugins": [
-    [
-      "transform-object-rest-spread",
-      {
-        "useBuiltIns": true
+        "useBuiltIns": "usage"
       }
     ]
   ],
   "env": {
     "test": {
       "presets": [
-        "env"
+        "@babel/preset-env"
       ],
-      "sourceMap": "inline",
-      "plugins": [
-        "transform-object-rest-spread"
-      ]
+      "sourceMap": "inline"
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@mcler/webpack-concat-plugin",
-  "version": "4.1.1",
+  "version": "4.1.2",
   "author": "mcler",
   "description": "Webpack file concatenation.",
   "license": "ISC",
@@ -13,18 +13,19 @@
     "build": "babel index.js --out-file release.js"
   },
   "dependencies": {
-    "globby": "^8.0.1",
+    "globby": "^11.0.3",
     "schema-utils": "^3.0.0",
-    "upath": "^1.1.0"
+    "upath": "^2.0.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-jest": "^22.4.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
+    "@babel/cli": "^7.13.14",
+    "@babel/core": "^7.13.14",
+    "@babel/preset-env": "^7.13.12",
+    "@babel/runtime": "^7.13.10",
+    "babel-jest": "^26.6.3",
+    "core-js": "^3.9.1",
     "is-object": "^1.0.1",
-    "jest": "^22.4.2"
+    "jest": "^26.6.3"
   },
   "peerDependencies": {
     "html-webpack-plugin": "^5.3.1",
