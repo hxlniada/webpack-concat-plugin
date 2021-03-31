@@ -1,9 +1,5 @@
 # webpack-concat-plugin
 
-<!-- [![Build Status](https://img.shields.io/travis/hxlniada/webpack-concat-plugin.svg)](https://travis-ci.org/hxlniada/webpack-concat-plugin)
-[![npm package](https://img.shields.io/npm/v/webpack-concat-plugin.svg)](https://www.npmjs.org/package/webpack-concat-plugin)
-[![npm downloads](http://img.shields.io/npm/dm/webpack-concat-plugin.svg)](https://www.npmjs.org/package/webpack-concat-plugin) -->
-
 > A plugin to help webpack concat js and inject into html. Forked from [hxlniada's plugin](https://github.com/hxlniada/webpack-concat-plugin)
 
 ### Why
@@ -81,9 +77,3 @@ doctype html
     script(src=htmlWebpackPlugin.files.webpackConcat.flexible)
 ...
 ```
-
-### TODO
-
-- [ ] add css support
-- [ ] update babel
-- [ ] update jest

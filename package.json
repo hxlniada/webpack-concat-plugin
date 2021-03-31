@@ -35,13 +35,13 @@
   "engines": {
     "node": ">= 14"
   },
-  "homepage": "https://github.com/hxlniada/webpack-concat-plugin",
+  "homepage": "https://github.com/mcler/webpack-concat-plugin",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hxlniada/webpack-concat-plugin.git"
+    "url": "git+https://github.com/mcler/webpack-concat-plugin.git"
   },
   "bugs": {
-    "url": "https://github.com/hxlniada/webpack-concat-plugin/issues"
+    "url": "https://github.com/mcler/webpack-concat-plugin/issues"
   },
   "jest": {
     "testEnvironment": "node"
