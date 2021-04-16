@@ -1,5 +1,8 @@
 ## Change History
 
+### v4.1.3 (2021-04-16)
+* downgrade to `globby@^8.0.1` due issues on Windows
+
 ### v4.1.2 (2021-03-30)
 * update dependencies, migrate to Babel 7
 

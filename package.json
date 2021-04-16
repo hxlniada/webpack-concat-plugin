@@ -1,6 +1,6 @@
 {
   "name": "@mcler/webpack-concat-plugin",
-  "version": "4.1.2",
+  "version": "4.1.3",
   "author": "mcler",
   "description": "Webpack file concatenation.",
   "license": "ISC",
@@ -13,7 +13,7 @@
     "build": "babel index.js --out-file release.js"
   },
   "dependencies": {
-    "globby": "^11.0.3",
+    "globby": "^8.0.1",
     "schema-utils": "^3.0.0",
     "upath": "^2.0.1"
   },
