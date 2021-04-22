@@ -45,5 +45,13 @@
   },
   "jest": {
     "testEnvironment": "node"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "keywords": [
+    "webpack",
+    "concat",
+    "legacy"
+  ]
 }
