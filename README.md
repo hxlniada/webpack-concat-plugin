@@ -9,7 +9,8 @@ It delivers:
 - Concatination of files
 - Source maps
 - Minification
-- Inject to HTML (via `[html-webpack-plugin](https://github.com/jantimon/html-webpack-plugin)`)
+- Support for `webpack@5` and `html-webpack-plugin@5`
+- Inject to HTML (via [`html-webpack-plugin`](https://github.com/jantimon/html-webpack-plugin))
 
 > Only Webpack 5 is supported
 
