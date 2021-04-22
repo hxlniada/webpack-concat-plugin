@@ -2,6 +2,7 @@
 
 /example/assets
 
+/test/__snapshots__
 /test/js
 /coverage
 

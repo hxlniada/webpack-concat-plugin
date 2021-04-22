@@ -9,4 +9,7 @@ module.exports = {
             filesToConcat: ['../../fixtures/a.js', '../../fixtures/b.js', 'is-object']
         })
     ],
+    optimization: {
+        minimize: false,
+    },
 };

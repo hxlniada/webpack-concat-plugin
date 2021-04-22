@@ -1,4 +1,29 @@
 ## Change History
+
+### v4.1.3 (2021-04-16)
+* downgrade to `globby@^8.0.1` due to issues on Windows
+
+### v4.1.2 (2021-03-30)
+* update dependencies, migrate to Babel 7
+
+### v4.1.1 (2021-03-29)
+* fixed resolver error
+
+### v4.1.0 (2021-03-26)
+* full support for `html-webpack-plugin@5`
+* fully passing tests
+
+### v4.0.1 (2020-12-30)
+* fixed source map generation
+
+### v4.0.0 (2020-12-08)
+* **Breaking change** removed `uglify` and `sourceMap` from plugin configuration
+* remove `concat-with-sourcemaps` from dependencies
+* support `webpack@5.1.0`
+* support `html-webpack-plugin@5.0.0-alpha.15`
+* upgrade `schema-utils` to 3.0.0
+* `html-webpack-plugin`, `webpack` moved to `peerDependencies`
+
 ### v3.0.0 (2018-06-08)
 * support webpack4.0.0
 * Better hashing. thanks to [ddumont](https://github.com/ddumont)

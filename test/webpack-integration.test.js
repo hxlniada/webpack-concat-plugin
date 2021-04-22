@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import webpack from 'webpack';
-import ConcatPlugin from '../index';
 
 const cases = process.env.CASES ? process.env.CASES.split(',') : fs.readdirSync(path.join(__dirname, 'cases'));
 

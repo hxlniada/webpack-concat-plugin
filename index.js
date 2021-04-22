@@ -1,22 +1,31 @@
+/* eslint-disable comma-dangle, prefer-object-spread, prefer-let/prefer-let, @typescript-eslint/no-unused-expressions */
+
 /**
  * @file webpack-concat-plugin
  * @author huangxueliang
  */
 const fs = require('fs');
-const Concat = require('concat-with-sourcemaps');
-const UglifyJS = require('uglify-es');
+const Compilation = require('webpack').Compilation;
+const { ConcatSource, OriginalSource } = require('webpack-sources');
 const createHash = require('crypto').createHash;
 const path = require('path');
 const upath = require('upath');
 const globby = require('globby');
-const validateOptions = require('schema-utils');
+const validateOptions = require('schema-utils').validate;
 const schema = require('./schema.json');
+
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+const PLUGIN_NAME = 'webpackConcatPlugin';
+
+/** @typedef {import("webpack").Compiler} Compiler */
+/** @typedef {import("webpack").Compilation} Compilation */
+/** @typedef {import("webpack").Context} Context */
+/** @typedef {import("webpack-sources").Source} Source */
 
 class ConcatPlugin {
     constructor(options) {
         options = Object.assign({
-            uglify: false,
-            sourceMap: false,
             fileName: '[name].js',
             name: 'result',
             injectType: 'prepend',
@@ -24,10 +33,10 @@ class ConcatPlugin {
         }, options);
 
         if (!options.filesToConcat || !options.filesToConcat.length) {
-            throw new Error('webpackConcatPlugin: option filesToConcat is required and should not be empty');
+            throw new Error(`${PLUGIN_NAME}: option filesToConcat is required and should not be empty`);
         }
 
-        validateOptions(schema, options, 'webpackConcatPlugin');
+        validateOptions(schema, options, PLUGIN_NAME);
 
         options.outputPath = options.outputPath && this.ensureTrailingSlash(options.outputPath);
 
@@ -37,8 +46,12 @@ class ConcatPlugin {
         this.startTime = Date.now();
         this.prevTimestamps = {};
         this.needCreateNewFile = true;
+        this.resolveCache = {};
     }
 
+    /**
+     * @param {string} string
+     */
     ensureTrailingSlash(string) {
         if (string.length && string.substr(-1, 1) !== '/') {
             return `${string}/`;
@@ -47,6 +60,10 @@ class ConcatPlugin {
         return string;
     }
 
+    /**
+     * @param {Array<string>} files
+     * @param {string} filePath
+     */
     getFileName(files, filePath = this.settings.fileName) {
         if (!this.needCreateNewFile) {
             return this.finalFileName;
@@ -70,6 +87,9 @@ class ConcatPlugin {
         return filePath.replace(fileRegExp, this.settings.name);
     }
 
+    /**
+     * @param {Array<string>} files
+     */
     hashFile(files) {
         if (this.fileHash && !this.needCreateNewFile) {
             return this.fileHash;
@@ -80,37 +100,42 @@ class ConcatPlugin {
         const { hashFunction = 'md5', hashDigest = 'hex' } = this.settings;
         this.fileHash = createHash(hashFunction).update(content).digest(hashDigest);
         if (hashDigest === 'base64') {
-          // these are not safe url characters.
-          this.fileHash = this.fileHash.replace(/[/+=]/g, (c) => {
-            switch (c) {
-              case '/': return '_';
-              case '+': return '-';
-              case '=': return '';
-              default: return c;
-            }
-          });
+            // these are not safe url characters.
+            this.fileHash = this.fileHash.replace(/[/+=]/g, (c) => {
+                switch (c) {
+                    case '/': return '_';
+                    case '+': return '-';
+                    case '=': return '';
+                    default: return c;
+                }
+            });
         }
 
         return this.fileHash;
     }
 
+    /**
+     * @param {Context} context
+     */
     getRelativePathAsync(context) {
         return Promise.all(this.settings.filesToConcat.map(f => {
-                if (globby.hasMagic(f)) {
-                    return globby(f, {
-                        cwd: context,
-                        nodir: true
-                    });
-                }
-                return f;
-            })).then(rawResult =>
-                rawResult.reduce((target, resource) => target.concat(resource), [])
-            )
-            .catch(e => {
-                console.error(e);
+            if (globby.hasMagic(f)) {
+                return globby(f, {
+                    cwd: context,
+                    nodir: true
+                });
+            }
+            return f;
+        }))
+            .then(rawResult => rawResult.reduce((target, resource) => target.concat(resource), []))
+            .catch(error => {
+                console.error(error);
             });
     }
 
+    /**
+     * @param {Compiler} compiler
+     */
     resolveReadFiles(compiler) {
         const self = this;
         let readFilePromise;
@@ -118,29 +143,29 @@ class ConcatPlugin {
         const relativePathArrayPromise = this.getRelativePathAsync(compiler.options.context);
 
         this.filesToConcatAbsolutePromise = new Promise((resolve, reject) => {
-            compiler.resolverFactory.plugin('resolver normal', resolver => {
+            compiler.resolverFactory.hooks.resolver.for('normal').tap('resolver', (resolver) => {
                 resolve(relativePathArrayPromise
                     .then(relativeFilePathArray =>
                         Promise.all(relativeFilePathArray.map(relativeFilePath =>
-                            new Promise((resolve, reject) =>
+                            new Promise((_resolve, _reject) =>
                                 resolver.resolve(
                                     {},
                                     compiler.options.context,
                                     relativeFilePath,
                                     {},
-                                    (err, filePath) => {
-                                        if (err) {
-                                            reject(err);
-                                        }
-                                        else {
-                                            resolve(filePath);
+                                    (error, filePath) => {
+                                        if (error) {
+                                            if (!this.resolveCache[relativeFilePath]) _reject(error)
+                                        } else {
+                                            this.resolveCache[relativeFilePath] = true;
+                                            _resolve(filePath);
                                         }
                                     }
                                 )
                             )
                         ))
-                    ).catch(e => {
-                        console.error(e);
+                    ).catch(error => {
+                        console.error(error);
                     })
                 );
             });
@@ -156,17 +181,16 @@ class ConcatPlugin {
                             fs.readFile(filePath, (err, data) => {
                                 if (err) {
                                     reject(err);
-                                }
-                                else {
+                                } else {
                                     resolve({
-                                        ['webpack:///' + upath.relative(compiler.options.context, filePath)]: data.toString()
+                                        [`webpack:///${upath.relative(compiler.options.context, filePath)}`]: data.toString()
                                     });
                                 }
                             });
                         })
                     ))
-                ).catch(e => {
-                    console.error(e);
+                ).catch(error => {
+                    console.error(error);
                 });
         };
 
@@ -178,85 +202,26 @@ class ConcatPlugin {
         };
     }
 
+    /**
+     * @param {Compilation} compilation
+     * @param {Array<any>} files
+     */
     resolveConcatAndUglify(compilation, files) {
-        const allFiles = files.reduce((file1, file2) =>  Object.assign(file1, file2), {});
-        let content = '';
-        let mapContent = '';
+        const allFiles = files.reduce((file1, file2) => Object.assign(file1, file2), {});
 
         this.finalFileName = this.getFileName(allFiles);
-        const fileBaseName = path.basename(this.finalFileName);
-
-        if (this.settings.uglify) {
-            let options = {};
-
-            if (typeof this.settings.uglify === 'object') {
-                options = Object.assign({}, this.settings.uglify, options);
-            }
-
-            if (this.settings.sourceMap) {
-                options.sourceMap = {
-                    url: `${fileBaseName}.map`,
-                    includeSources: true
-                };
-            }
-
-            const result = UglifyJS.minify(allFiles, options);
-
-            if (result.error) {
-                throw result.error;
-            }
-
-            content = result.code;
-
-            if (this.settings.sourceMap) {
-                mapContent = result.map.toString();
-            }
-        }
-        else {
-            const concat = new Concat(!!this.settings.sourceMap, this.finalFileName, '\n');
-
-            Object.keys(allFiles).forEach(fileName => {
-                concat.add(fileName, allFiles[fileName]);
-            });
-
-            content = concat.content.toString();
-
-            if (this.settings.sourceMap) {
-                content += `//# sourceMappingURL=${fileBaseName}.map`;
-                mapContent = concat.sourceMap;
-            }
-        }
-
-        compilation.assets[`${this.settings.outputPath}${this.finalFileName}`] = {
-            source() {
-                return content;
-            },
-            size() {
-                return content.length;
-            }
-        };
-
-        compilation.hooks.moduleAsset.call({
-            userRequest: `${this.settings.outputPath}${this.settings.name}.js`
-        }, `${this.settings.outputPath}${this.finalFileName}`);
-
-        if (this.settings.sourceMap) {
-            compilation.assets[`${this.settings.outputPath}${this.finalFileName}.map`] = {
-                source() {
-                    return mapContent;
-                },
-                size() {
-                    return mapContent.length;
-                }
-            };
-            compilation.hooks.moduleAsset.call({
-                userRequest: `${this.settings.outputPath}${this.settings.name}.js.map`
-            }, `${this.settings.outputPath}${this.finalFileName}.map`);
-        }
+        const concatSource = new ConcatSource();
+        Object.entries(allFiles).forEach(([name, file]) => {
+            concatSource.add(new OriginalSource(file, name));
+        });
+        compilation.emitAsset(this.finalFileName, concatSource);
 
         this.needCreateNewFile = false;
     }
 
+    /**
+     * @param {Compiler} compiler
+     */
     apply(compiler) {
         // ensure only compile one time per emit
         let compileLoopStarted = false;
@@ -266,22 +231,30 @@ class ConcatPlugin {
         const self = this;
 
         const dependenciesChanged = (compilation, filesToConcatAbsolute) => {
-            const fileTimestampsKeys = Object.keys(compilation.fileTimestamps);
-            // Since there are no time stamps, assume this is the first run and emit files
+            if (!compilation.fileTimestamps) {
+                return true;
+            }
+            const fileTimestampsKeys = Array.from(compilation.fileTimestamps.keys());
             if (!fileTimestampsKeys.length) {
                 return true;
             }
-            const changed = fileTimestampsKeys.filter(watchfile =>
-                (self.prevTimestamps[watchfile] || self.startTime) < (compilation.fileTimestamps[watchfile] || Infinity)
-            ).some(f => filesToConcatAbsolute.includes(f));
+            const changedFiles = fileTimestampsKeys.filter(
+                file => {
+                    const start = this.prevTimestamps.get(file) || this.startTime;
+                    const end = compilation.fileTimestamps.get(file) || Infinity;
+                    return start < end;
+                }
+            );
+
             this.prevTimestamps = compilation.fileTimestamps;
-            return changed;
+
+            return changedFiles.some(file => filesToConcatAbsolute.includes(file));
         };
 
         const processCompiling = (compilation, callback) => {
             self.filesToConcatAbsolutePromise.then(filesToConcatAbsolute => {
-                for (const f of filesToConcatAbsolute) {
-                    compilation.fileDependencies.add(path.relative(compiler.options.context, f));
+                for (const file of filesToConcatAbsolute) {
+                    compilation.fileDependencies.add(path.relative(compiler.options.context, file));
                 }
                 if (!dependenciesChanged(compilation, filesToConcatAbsolute)) {
                     return callback();
@@ -291,22 +264,22 @@ class ConcatPlugin {
 
                     callback();
                 });
-            }).catch(e => {
-                console.error(e);
+            }).catch(error => {
+                console.error(error);
             });
         };
 
-        compiler.hooks.compilation.tap('webpackConcatPlugin', compilation => {
+        compiler.hooks.compilation.tap(PLUGIN_NAME, compilation => {
             let assetPath;
+            let hookBeforeAssetTagGeneration = HtmlWebpackPlugin.getHooks(compilation).beforeAssetTagGeneration;
 
-            compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration
-            && compilation.hooks.htmlWebpackPluginBeforeHtmlGeneration.tapAsync('webpackConcatPlugin', (htmlPluginData, callback) => {
+            hookBeforeAssetTagGeneration && hookBeforeAssetTagGeneration.tapAsync(PLUGIN_NAME, (htmlPluginData, callback) => {
                 const getAssetPath = () => {
                     if (typeof self.settings.publicPath === 'undefined') {
-                        if (typeof compilation.options.output.publicPath === 'undefined') {
+                        if (typeof htmlPluginData.assets.publicPath === 'undefined') {
                             return path.relative(path.dirname(htmlPluginData.outputName), `${self.settings.outputPath}${self.finalFileName}`);
                         }
-                        return `${self.ensureTrailingSlash(compilation.options.output.publicPath)}${self.settings.outputPath}${self.finalFileName}`;
+                        return `${self.ensureTrailingSlash(htmlPluginData.assets.publicPath)}${self.settings.outputPath}${self.finalFileName}`;
                     }
                     if (self.settings.publicPath === false) {
                         return path.relative(path.dirname(htmlPluginData.outputName), `${self.settings.outputPath}${self.finalFileName}`);
@@ -323,8 +296,7 @@ class ConcatPlugin {
 
                     if (self.settings.injectType === 'prepend') {
                         htmlPluginData.assets.js.unshift(assetPath);
-                    }
-                    else if (self.settings.injectType === 'append') {
+                    } else if (self.settings.injectType === 'append') {
                         htmlPluginData.assets.js.push(assetPath);
                     }
                 };
@@ -335,37 +307,41 @@ class ConcatPlugin {
                         injectToHtml();
                         callback(null, htmlPluginData);
                     });
-                }
-                else {
+                } else {
                     injectToHtml();
                     callback(null, htmlPluginData);
                 }
             });
 
-            compilation.hooks.htmlWebpackPluginAlterAssetTags
-            && compilation.hooks.htmlWebpackPluginAlterAssetTags.tap('webpackConcatPlugin', htmlPluginData => {
-                if (self.settings.injectType !== 'none') {
-                    const tags = htmlPluginData.head.concat(htmlPluginData.body);
-                    const resultTag = tags.filter(tag =>
-                        tag.attributes.src === assetPath
-                    );
-                    if (resultTag && resultTag.length && self.settings.attributes) {
-                        Object.assign(resultTag[0].attributes, self.settings.attributes);
+            const hookAlterAssetTags = HtmlWebpackPlugin.getHooks(compilation).alterAssetTags
+
+            hookAlterAssetTags && hookAlterAssetTags.tapAsync(PLUGIN_NAME, (htmlPluginData, callback) => {
+                    if (self.settings.injectType !== 'none') {
+                        const tags = htmlPluginData.assetTags.scripts.filter(tag => tag.attributes.src === assetPath);
+                        if (tags && tags.length && self.settings.attributes) {
+                            tags.forEach((tag) => {
+                                Object.assign(tag.attributes, self.settings.attributes);
+                            });
+                        }
                     }
+                    callback(null, htmlPluginData);
+                });
+        });
+
+        compiler.hooks.thisCompilation.tap(PLUGIN_NAME, (compilation) => {
+            compilation.hooks.processAssets.tapAsync({
+                name: PLUGIN_NAME,
+                stage: Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
+            }, (_, callback) => {
+                if (!compileLoopStarted) {
+                    compileLoopStarted = true;
+                    processCompiling(compilation, callback);
+                } else {
+                    callback();
                 }
             });
         });
-
-        compiler.hooks.emit.tapAsync('webpackConcatPlugin', (compilation, callback) => {
-            if (!compileLoopStarted) {
-                compileLoopStarted = true;
-                processCompiling(compilation, callback);
-            }
-            else {
-                callback();
-            }
-        });
-        compiler.hooks.afterEmit.tap('webpackConcatPlugin', compilation => {
+        compiler.hooks.afterEmit.tap(PLUGIN_NAME, () => {
             compileLoopStarted = false;
         });
     }

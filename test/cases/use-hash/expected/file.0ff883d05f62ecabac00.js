@@ -6,7 +6,6 @@ var x = 1;
  * @type {number}
  */
 x = 10;
-
 var y = 2;
 
 
