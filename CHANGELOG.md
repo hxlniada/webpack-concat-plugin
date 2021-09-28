@@ -1,5 +1,9 @@
 ## Change History
 
+### v4.1.4 (2021-09-28)
+* add `package-lock.json` to repo
+* update `babel`, `jest`, `webpack-sources`
+
 ### v4.1.3 (2021-04-16)
 * downgrade to `globby@^8.0.1` due to issues on Windows
 
