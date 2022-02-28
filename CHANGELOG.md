@@ -1,5 +1,9 @@
 ## Change History
 
+### v4.1.5 (2022-02-28)
+* fixed `outputPath` option usage
+* update `babel`, `core-js`, `jest`, `schema-utils`, `webpack`, `webpack-sources`
+
 ### v4.1.4 (2021-09-28)
 * add `package-lock.json` to repo
 * update `babel`, `jest`, `webpack-sources`
