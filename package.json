@@ -1,12 +1,14 @@
 {
   "name": "@mcler/webpack-concat-plugin",
-  "version": "4.1.4",
+  "version": "4.1.5",
   "author": "mcler",
   "description": "Webpack file concatenation.",
   "license": "ISC",
   "main": "./release.js",
   "scripts": {
     "build": "babel index.js --out-file release.js",
+    "publish:latest": "npm run build && npm publish --access public --tag latest",
+    "publish:next": "npm run build && npm publish --access public --tag next",
     "test": "npm run test:clean; jest",
     "test:watch": "npm run test:clean; jest --watch",
     "test:coverage": "jest --collectCoverageFrom='src/**/*.js' --coverage",
