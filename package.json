@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "globby": "^8.0.1",
-    "schema-utils": "^3.0.0",
+    "schema-utils": "^4.0.0",
     "upath": "^2.0.1"
   },
   "devDependencies": {
@@ -28,8 +28,8 @@
     "jest": "^27.2.3"
   },
   "peerDependencies": {
-    "html-webpack-plugin": "^5.3.1",
-    "webpack": "^5.12.0",
+    "html-webpack-plugin": "^5.0.0",
+    "webpack": "^5.0.0",
     "webpack-sources": "^3.2.1"
   },
   "engines": {
