@@ -9,6 +9,7 @@
     "build": "babel index.js --out-file release.js",
     "publish:latest": "npm run build && npm publish --access public --tag latest",
     "publish:next": "npm run build && npm publish --access public --tag next",
+    "publish:promote": "npm dist-tag add @mcler/webpack-concat-plugin@$(npm dist-tag ls @mcler/webpack-concat-plugin | grep next | sed 's/next\\: //g') latest",
     "test": "npm run test:clean; jest",
     "test:watch": "npm run test:clean; jest --watch",
     "test:coverage": "jest --collectCoverageFrom='src/**/*.js' --coverage",
