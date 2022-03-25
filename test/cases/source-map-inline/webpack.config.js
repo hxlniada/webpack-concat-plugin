@@ -6,11 +6,15 @@ module.exports = {
         new ConcatPlugin({
             name: 'file',
             fileName: '[name].js',
-            filesToConcat: ['../../fixtures/a.js', '../../fixtures/b.js', 'is-object'],
-            outputPath: 'legacy',
+            filesToConcat: [
+                '../../fixtures/a.js',
+                '../../fixtures/b.js',
+                '../../fixtures/sourcemaps/inline.js'
+            ],
         })
     ],
     optimization: {
         minimize: false,
     },
+    devtool: 'source-map',
 };

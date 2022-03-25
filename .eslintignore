@@ -1,0 +1,5 @@
+dist
+test/__snapshots__
+test/cases
+test/fixtures
+test/js

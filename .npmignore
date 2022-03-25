@@ -1,5 +1,11 @@
-/test
-/node_modules
-.travis.yml
-.gitattributes
+lib
+node_modules
+test
 .editorconfig
+.eslintignore
+.eslintrc.json
+.gitattributes
+.gitignore
+.travis.yml
+esbuild.config.js
+jest.config.js

@@ -1,9 +1,9 @@
 /node_modules
 
-/example/assets
-
 /test/__snapshots__
 /test/js
+/test/fixtures/sourcemaps/*
+!/test/fixtures/sourcemaps/source.js
 /coverage
 
 /.idea

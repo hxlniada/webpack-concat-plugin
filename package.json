@@ -1,19 +1,45 @@
 {
   "name": "@mcler/webpack-concat-plugin",
-  "version": "4.1.5",
-  "author": "mcler",
+  "version": "5.0.0-alpha1",
   "description": "Webpack file concatenation.",
+  "keywords": [
+    "webpack",
+    "concat",
+    "legacy"
+  ],
+  "homepage": "https://github.com/mcler/webpack-concat-plugin",
+  "bugs": {
+    "url": "https://github.com/mcler/webpack-concat-plugin/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mcler/webpack-concat-plugin.git"
+  },
   "license": "ISC",
-  "main": "./release.js",
+  "author": "mcler",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js"
+    }
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
   "scripts": {
-    "build": "babel index.js --out-file release.js",
-    "publish:latest": "npm run build && npm publish --access public --tag latest",
-    "publish:next": "npm run build && npm publish --access public --tag next",
-    "publish:promote": "npm dist-tag add @mcler/webpack-concat-plugin@$(npm dist-tag ls @mcler/webpack-concat-plugin | grep next | sed 's/next\\: //g') latest",
-    "test": "npm run test:clean; jest",
-    "test:watch": "npm run test:clean; jest --watch",
+    "build": "rm -rf ./dist/* && node esbuild.config.js && cp package.json dist && cp *.md dist",
+    "lint": "eslint lib",
+    "publish:alpha": "npm run build && cd dist && npm publish --access public --tag alpha",
+    "publish:latest": "npm run build && cd dist && npm publish --access public --tag latest",
+    "publish:next": "npm run build && cd dist && npm publish --access public --tag next",
+    "publish:promote-next": "npm dist-tag add @mcler/webpack-concat-plugin@$(npm dist-tag ls @mcler/webpack-concat-plugin | grep next | sed 's/next\\: //g') latest",
+    "test": "npm run test:clean; npm run test:create-sourcemaps; jest",
+    "test:clean": "rm -rf test/__snapshots__; rm -rf test/js",
     "test:coverage": "jest --collectCoverageFrom='src/**/*.js' --coverage",
-    "test:clean": "rm -rf test/__snapshots__; rm -rf test/js"
+    "test:create-sourcemaps": "esbuild test/fixtures/sourcemaps/source.js --sourcemap=linked --outfile=test/fixtures/sourcemaps/linked.js; esbuild test/fixtures/sourcemaps/source.js --sourcemap=external --outfile=test/fixtures/sourcemaps/external.js; esbuild test/fixtures/sourcemaps/source.js --sourcemap=inline --outfile=test/fixtures/sourcemaps/inline.js",
+    "test:watch": "npm run test:clean; jest --watch"
   },
   "dependencies": {
     "globby": "^8.0.1",
@@ -21,12 +47,13 @@
     "upath": "^2.0.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.13.14",
-    "@babel/core": "^7.13.14",
-    "@babel/preset-env": "^7.13.12",
-    "@babel/runtime": "^7.13.10",
-    "babel-jest": "^27.2.3",
-    "core-js": "^3.9.1",
+    "esbuild": "^0.14.26",
+    "esbuild-jest": "^0.5.0",
+    "eslint": "^8.11.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-jest": "^26.1.1",
+    "eslint-plugin-promise": "^6.0.0",
     "is-object": "^1.0.1",
     "jest": "^27.2.3"
   },
@@ -36,25 +63,6 @@
     "webpack-sources": "^3.2.1"
   },
   "engines": {
-    "node": ">= 14"
-  },
-  "homepage": "https://github.com/mcler/webpack-concat-plugin",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mcler/webpack-concat-plugin.git"
-  },
-  "bugs": {
-    "url": "https://github.com/mcler/webpack-concat-plugin/issues"
-  },
-  "jest": {
-    "testEnvironment": "node"
-  },
-  "directories": {
-    "test": "test"
-  },
-  "keywords": [
-    "webpack",
-    "concat",
-    "legacy"
-  ]
+    "node": ">= 10"
+  }
 }

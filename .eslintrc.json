@@ -1,0 +1,81 @@
+{
+    "env": {
+        "node": true
+    },
+    "parserOptions": {
+      "ecmaVersion": 2022
+    },
+    "extends": [
+        "airbnb-base",
+        "plugin:import/errors",
+        "plugin:import/warnings"
+    ],
+    "plugins": [
+        "import",
+        "promise"
+    ],
+    "rules": {
+        "indent": [
+            "error",
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ],
+        "max-len": [
+            "error",
+            {
+                "code": 130,
+                "tabWidth": 2,
+                "ignoreUrls": true,
+                "ignoreComments": true,
+                "ignoreRegExpLiterals": true,
+                "ignoreStrings": true,
+                "ignoreTemplateLiterals": true
+            }
+        ],
+        "no-param-reassign": "off",
+        "no-unused-expressions": ["error", {"allowShortCircuit": true, "allowTernary": true}],
+        "prefer-const": "off"
+    },
+    "overrides": [
+        {
+            "files": ["*.config.js"],
+            "env": {
+                "node": true
+            },
+            "rules": {
+                "import/no-extraneous-dependencies": ["error", {
+                    "devDependencies": true
+                }]
+            }
+        },
+        {
+            "files": ["test/*"],
+            "plugins": [
+                "import",
+                "jest",
+                "promise"
+            ],
+            "env": {
+                "node": true,
+                "jest": true
+            },
+            "rules": {
+                "global-require": "off",
+                "import/no-dynamic-require": "off",
+                "jest/no-disabled-tests": "warn",
+                "jest/no-focused-tests": "error",
+                "jest/no-identical-title": "error",
+                "jest/prefer-to-have-length": "warn",
+                "jest/valid-expect": "error",
+                "no-new": "warn",
+                "no-undef": "warn",
+                "quotes": [
+                    "error",
+                    "single"
+                ]
+            }
+        }
+    ]
+}

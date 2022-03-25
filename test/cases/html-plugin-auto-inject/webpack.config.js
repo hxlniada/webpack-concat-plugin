@@ -1,4 +1,4 @@
-import ConcatPlugin from '../../../index';
+import ConcatPlugin from '../../../lib';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 module.exports = {

@@ -1,4 +1,4 @@
-import ConcatPlugin from '../../../index';
+import ConcatPlugin from '../../../lib';
 
 module.exports = {
     entry: './index.js',

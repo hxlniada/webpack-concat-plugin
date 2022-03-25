@@ -4,6 +4,14 @@ import webpack from 'webpack';
 
 const cases = process.env.CASES ? process.env.CASES.split(',') : fs.readdirSync(path.join(__dirname, 'cases'));
 
+function readFileOrEmpty(filePath) {
+    try {
+        return fs.readFileSync(filePath, 'utf-8');
+    } catch (e) {
+        return '';
+    }
+}
+
 describe('Webpack Integration Tests', () => {
     cases.forEach((testCase) => {
         if (testCase === '.DS_Store') {
@@ -45,11 +53,3 @@ describe('Webpack Integration Tests', () => {
         });
     });
 });
-
-function readFileOrEmpty(path) {
-    try {
-        return fs.readFileSync(path, 'utf-8');
-    } catch (e) {
-        return '';
-    }
-}
